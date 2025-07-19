@@ -34,6 +34,7 @@
     .content {
       margin-left: 250px;
       padding: 30px;
+      margin-top: 70px;
     }
     .card {
       border: none;
@@ -50,22 +51,30 @@
 
 <!-- Sidebar -->
 <div class="sidebar">
-  <a href="#" class="active"><i class="bi bi-bar-chart"></i> Analytics</a>
-  <a href="#"><i class="bi bi-people"></i> Users</a>
-  <a href="#"><i class="bi bi-wallet2"></i> Expenses</a>
-  <a href="#"><i class="bi bi-collection"></i> Groups</a>
+  <a href="/admin/analytics" class="active"><i class="bi bi-bar-chart"></i> Analytics</a>
+  <a href="/admin/users"><i class="bi bi-people"></i> Users</a>
+  <a href="/admin/expenses"><i class="bi bi-wallet2"></i> Expenses</a>
+  <a href="/admin/groups"><i class="bi bi-collection"></i> Groups</a>
   <a href="#"><i class="bi bi-gear"></i> Settings</a>
 </div>
 
 <!-- Top Navbar -->
-<!-- <nav class="navbar navbar-light bg-white shadow-sm fixed-top" style="margin-left:250px;">
+<nav class="navbar navbar-light bg-white shadow-sm fixed-top" style="margin-left:250px;">
   <div class="container-fluid justify-content-end">
-    <form class="d-flex">
-      <input class="form-control me-2" type="search" placeholder="Search" />
-      <button class="btn btn-outline-secondary" type="submit"><i class="bi bi-search"></i></button>
-    </form>
+    <div class="d-flex align-items-center gap-3">
+      <span class="fw-semibold">
+        👤 {{ Auth::user()->name ?? 'Admin' }}
+      </span>
+
+      <form method="GET" action="{{ route('admin.logout') }}">
+        @csrf
+        <button type="submit" class="btn btn-outline-danger btn-sm">
+          <i class="bi bi-box-arrow-right"></i> Logout
+        </button>
+      </form>
+    </div>
   </div>
-</nav> -->
+</nav>
 
 <!-- Main Content -->
 <div class="content">

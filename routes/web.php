@@ -12,9 +12,14 @@ use App\Http\Controllers\admin\groupMemberController;
 use App\Http\Controllers\Admin\SplitController;
 use App\Http\Controllers\Admin\AnalyticsController;
 use App\Http\Controllers\admin\categoriesController ;
+use App\Http\Controllers\admin\adminController as AdminRegisterController;
+use App\Http\Controllers\admin\adminUserController;
 Route::get('/', function () {
-    return view('welcome');
+    return redirect('/admin/login');
 });
+
+Route::get('/admin/register', [AdminRegisterController::class, 'showForm'])->name('admin.register');
+Route::post('/admin/register', [AdminRegisterController::class, 'register']);
  
 Route::group(['prefix' => 'account'], function () {
      Route::group(['middleware' => 'guest'], function () {
@@ -74,6 +79,8 @@ Route::resource('categories', categoriesController::class)->names('admin.categor
 
  Route::get('/analytics', [AnalyticsController::class, 'index'])->name('admin.analytics.index');
     Route::get('/analytics/user/{user}', [AnalyticsController::class, 'userAnalytics'])->name('admin.analytics.user');
+ 
+  Route::get('/users',[adminUserController::class,'index'])->name('admin.users.index');  
 }); 
 
 

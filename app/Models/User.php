@@ -21,6 +21,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'role',
     ];
 
     /**
@@ -45,4 +46,17 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+    public function expenses()
+{
+    return $this->hasMany(Expense::class);
+}
+// app/Models/User.php
+
+public function groups()
+{
+    return $this->belongsToMany(Group::class, 'groups_member', 'user_id', 'group_id');
+}
+
+
 }
