@@ -55,7 +55,10 @@
   <a href="/admin/users"><i class="bi bi-people"></i> Users</a>
   <a href="/admin/expenses"><i class="bi bi-wallet2"></i> Expenses</a>
   <a href="/admin/groups"><i class="bi bi-collection"></i> Groups</a>
-  <a href="#"><i class="bi bi-gear"></i> Settings</a>
+  
+    <a class="nav-link" href="{{ route('reports.index') }}">🧾 Reports</a>
+ 
+
 </div>
 
 <!-- Top Navbar -->

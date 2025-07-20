@@ -14,6 +14,8 @@ use App\Http\Controllers\Admin\AnalyticsController;
 use App\Http\Controllers\admin\categoriesController ;
 use App\Http\Controllers\admin\adminController as AdminRegisterController;
 use App\Http\Controllers\admin\adminUserController;
+use App\Http\Controllers\reportController;
+
 Route::get('/', function () {
     return redirect('/admin/login');
 });
@@ -81,6 +83,11 @@ Route::resource('categories', categoriesController::class)->names('admin.categor
     Route::get('/analytics/user/{user}', [AnalyticsController::class, 'userAnalytics'])->name('admin.analytics.user');
  
   Route::get('/users',[adminUserController::class,'index'])->name('admin.users.index');  
+
+  Route::get('/reports', [reportController::class, 'index'])->name('reports.index');
+Route::get('/reports/export/pdf', [reportController::class, 'exportPdf'])->name('reports.export.pdf');
+Route::get('/reports/export/csv', [reportController::class, 'exportCsv'])->name('reports.export.csv');
+
 }); 
 
 
