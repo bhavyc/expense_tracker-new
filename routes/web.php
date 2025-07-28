@@ -87,7 +87,16 @@ Route::resource('categories', categoriesController::class)->names('admin.categor
   Route::get('/reports', [reportController::class, 'index'])->name('reports.index');
 Route::get('/reports/export/pdf', [reportController::class, 'exportPdf'])->name('reports.export.pdf');
 Route::get('/reports/export/csv', [reportController::class, 'exportCsv'])->name('reports.export.csv');
+Route::get('/admin/group-members/{groupId}', [GroupController::class, 'getGroupMembers']);
 
+
+  
+  Route::get('/users/{id}/edit', [adminUserController::class, 'edit'])->name('admin.users.edit');
+  Route::put('/users/{id}', [adminUserController::class, 'update'])->name('admin.users.update');
+  Route::delete('/users/{id}', [adminUserController::class, 'destroy'])->name('admin.users.destroy');
+
+
+  Route::get('/get-groups-by-user/{id}', [ExpenseController::class, 'getGroupsByUser']);
 }); 
 
 

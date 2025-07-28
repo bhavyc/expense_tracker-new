@@ -27,7 +27,7 @@ class splitController extends Controller
             'expense_id' => 'required|exists:expenses,id',
             'user_id' => 'required|exists:users,id',
             'amount' => 'required|numeric|min:0',
-            'type' => 'required|in:owned,lent', // Validate type as either owned or lent
+            'type' => 'required|in:owed,lent', // Validate type as either owned or lent
         ]);
 
         $split = new Split();

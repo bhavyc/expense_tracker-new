@@ -78,7 +78,7 @@
             <td>{{ $expense->group->name ?? 'Personal' }}</td>
             <td>{{ $expense->description }}</td>
             <td>₹{{ number_format($expense->amount, 2) }}</td>
-            <td>{{ $expense->category ?? 'N/A' }}</td>
+            <td>{{ $expense->category ?? 'Personal' }}</td>
             <td>{{ \Carbon\Carbon::parse($expense->expense_date)->format('d M Y') }}</td>
             <td>
               <span class="badge {{ $expense->status === 'approved' ? 'bg-success' : 'bg-warning text-dark' }}">

@@ -8,7 +8,8 @@ use App\Models\Expense;
 use App\Models\User;
 use App\Models\Group;
 use App\Models\Split;
-
+use App\Models\GroupMember;
+use Illuminate\Support\Facades\DB;
 
 class ExpenseController extends Controller
 {
@@ -28,6 +29,7 @@ class ExpenseController extends Controller
          
     }
 
+
     function store(Request $request)
     {
         $request->validate([
@@ -44,28 +46,39 @@ class ExpenseController extends Controller
        $expense = Expense::create($request->all());
         if ($request->group_id) {
     $group = Group::with('users')->find($request->group_id);
-    $members = $group->users;
-             $split_amount = round($request->amount / $members->count());
-             foreach($members as $member){
-               if($member->id == $request->user_id){
-                    $member->lent_total +=$request->amount-$split_amount;
-                    Split::create([
-                        'user_id'=>$member->id,
-                        'expense_id' => $expense->id,
-                        'amount' => $request->amount - $split_amount,   
-                        'type' => 'lent',
-                    ]);
-               } 
-               else{
-                $member->owed_total += $split_amount;
-                Split::create([
-                    'user_id' => $member->id,
-                    'expense_id' => $expense->id,
-                    'amount' => $split_amount,
-                    'type' => 'owned',
-                ]);
-               }
-            }
+$members = $group->users;
+
+$split_amount = round($request->amount / $members->count());
+
+foreach($members as $member){
+    // Type-safe comparison to ensure it works
+    if((int)$member->id === (int)$request->user_id){
+        // This user created the expense → lent = total - own share
+        $member->lent_total += $request->amount - $split_amount;
+
+        Split::create([
+            'user_id' => $member->id,
+            'expense_id' => $expense->id,
+            'amount' => $request->amount - $split_amount,
+            'type' => 'lent',
+        ]);
+    } else {
+        // Other users → owed = share amount
+        $member->owed_total += $split_amount;
+
+        Split::create([
+            'user_id' => $member->id,
+            'expense_id' => $expense->id,
+            'amount' => $split_amount,
+            'type' => 'owed',
+        ]);
+    }
+
+    // Save updated totals to DB
+    $member->save();
+}
+
+            
         }
 
         return redirect()->route('admin.expenses.index')->with('success', 'Expense created successfully.');
@@ -117,6 +130,12 @@ class ExpenseController extends Controller
 
     return redirect()->route('admin.expenses.index')->with('success', 'Expense deleted successfully.');
 }
+
+   public function getGroupsByUser($id)
+    {
+        $user = User::with('groups')->findOrFail($id);
+        return response()->json($user->groups);
+    }
 
 }
 

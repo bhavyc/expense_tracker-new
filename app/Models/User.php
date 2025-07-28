@@ -22,6 +22,8 @@ class User extends Authenticatable
         'email',
         'password',
         'role',
+        'lent_total',
+        'owed_total',
     ];
 
     /**
@@ -57,6 +59,19 @@ public function groups()
 {
     return $this->belongsToMany(Group::class, 'groups_member', 'user_id', 'group_id');
 }
+ public function updateTotals()
+    {
+        // Total user lent (diya)
+        $this->lent_total = $this->splits()
+            ->where('type', 'lent')
+            ->sum('amount');
 
+        // Total user owed (liya)
+        $this->owed_total = $this->splits()
+            ->where('type', 'owned')
+            ->sum('amount');
+
+        $this->save();
+    }
 
 }

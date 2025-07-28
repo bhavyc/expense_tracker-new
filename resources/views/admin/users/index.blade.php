@@ -51,10 +51,15 @@
                         <td>{{ $user->expenses->count() }}</td>
                         <td>₹{{ number_format($user->expenses->sum('amount'), 2) }}</td>
                         <td>{{ $user->groups->count() }}</td>
-                        <td>
-                            <a href="#" class="btn btn-sm btn-outline-primary">View</a>
-                            <a href="#" class="btn btn-sm btn-outline-danger">Delete</a>
-                        </td>
+                       <td>
+    <a href="{{ route('admin.users.edit', $user->id) }}" class="btn btn-sm btn-outline-primary">Update</a>
+
+    <form action="{{ route('admin.users.destroy', $user->id) }}" method="POST" style="display:inline-block;" onsubmit="return confirm('Are you sure to delete this user?');">
+        @csrf
+        @method('DELETE')
+        <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+    </form>
+</td>
                     </tr>
                 @empty
                     <tr>

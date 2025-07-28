@@ -24,16 +24,25 @@ class groupController extends Controller
 
      }
 
-     function store(Request $request){
-         $request->validate([
-             'name' => 'required',
-             'description' => 'required',
-             'created_by' => 'required|exists:users,id',
-         ]);
+     
 
-         Group::create($request->all());
-         return redirect()->route('admin.groups.index')->with('success', 'Group created successfully.');
-     }
+     function store(Request $request)
+{
+    $request->validate([
+        'name' => 'required',
+        'description' => 'required',
+        'created_by' => 'required|exists:users,id',
+    ]);
+
+    // Create group
+    $group = Group::create($request->all());
+
+    // Add the creator as a member
+    $group->users()->attach($request->created_by);
+
+    return redirect()->route('admin.groups.index')->with('success', 'Group created successfully.');
+}
+
 
      function edit($id){
         $group=Group::findorfail($id);
