@@ -74,11 +74,14 @@
             <div class="mb-3">
                 <label for="user_id" class="form-label">User</label>
                 <select name="user_id" id="user_id" class="form-select" required>
-                    <option value="">Select User</option>
-                    @foreach ($users as $user)
-                        <option value="{{ $user->id }}">{{ $user->name }}</option>
-                    @endforeach
-                </select>
+    <option value="">Select User</option>
+    @foreach ($users as $user)
+        @if($user->role !== 'admin') {{--  Exclude admin users --}}
+            <option value="{{ $user->id }}">{{ $user->name }}</option>
+        @endif
+    @endforeach
+</select>
+
             </div>
 
             <div class="mb-3">

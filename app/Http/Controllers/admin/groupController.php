@@ -10,9 +10,12 @@ class groupController extends Controller
 {
      function index(){
          $groups= Group::all();
+          if ($groups->isEmpty()) {
+        return redirect()->route('admin.groups.create')->with('warning', 'No groups found. Please create one.');
+    }
          $user = User::findorFail($groups->pluck('created_by'));
          $user= $user->pluck('name')[0];
-         
+        
          return view('admin.groups.index', compact('groups'));
 
      }

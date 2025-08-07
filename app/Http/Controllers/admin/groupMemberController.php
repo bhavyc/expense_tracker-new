@@ -17,7 +17,7 @@ class groupMemberController extends Controller
     }
 
     function create(){
-        $users = User::all(); // Assuming you have a User model
+         $users = User::where('role', '!=', 'admin')->get();// Assuming you have a User model
         $groups = Group::all(); // Assuming you have a Group model
         return view('admin.group-members.create', compact('users', 'groups'));
     }
@@ -42,7 +42,7 @@ class groupMemberController extends Controller
     {
         //   group member edit karne ke liye hai
         $groupMember = GroupMember::findOrFail($id);
-        $users = User::all();
+        $users = User::where('role', '!=', 'admin')->get();
         $groups = Group::all();
         return view('admin.group-members.edit', compact('groupMember', 'users', 'groups'));
     }

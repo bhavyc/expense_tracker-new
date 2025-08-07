@@ -5,7 +5,7 @@ use App\Http\Controllers\loginController;
 use App\Http\Controllers\dashboardController;
 use App\Http\Controllers\admin\loginController as AdminLoginController;
 use App\Http\Controllers\admin\dashboardController as AdminDashboardController;
-use App\Http\Controllers\admin\ExpenseController;
+use App\Http\Controllers\admin\ExpenseController    ;
 use App\Http\Controllers\admin\groupController;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\admin\groupMemberController;
@@ -15,7 +15,10 @@ use App\Http\Controllers\admin\categoriesController ;
 use App\Http\Controllers\admin\adminController as AdminRegisterController;
 use App\Http\Controllers\admin\adminUserController;
 use App\Http\Controllers\reportController;
-
+use App\Http\Controllers\expenseController as eController;
+use App\Http\Controllers\userController;
+use App\Http\Controllers\groupController as grController ;
+ 
 Route::get('/', function () {
     return redirect('/admin/login');
 });
@@ -34,7 +37,33 @@ Route::group(['prefix' => 'account'], function () {
     Route::group(['middleware' => 'auth'], function () {
         Route::get('/dashboard', [dashboardController::class, 'index'])->name('account.dashboard');
         Route::get('/logout', [loginController::class, 'logout'])->name('account.logout');
-    });
+       Route::get('/index', [userController::class, 'index'])->name('account.index');
+         Route::get('/expenses', [eController::class, 'index'])->name('user.expenses.index');
+    Route::get('/expenses/create', [eController::class, 'create'])->name('user.expenses.create');
+    Route::post('/expenses', [eController::class, 'store'])->name('user.expenses.store');
+
+    Route::get('user/groups', [grController::class, 'index'])->name('user.groups.index');
+
+// Show create form
+Route::get('user/groups/create', function () {
+    return view('user.groups.create');
+})->name('user.groups.create.form');
+
+// Handle create form submission
+Route::post('user/groups/create', [grController::class, 'create'])->name('user.groups.create');
+
+// Show edit form
+Route::get('user/groups/{id}/edit', [grController::class, 'edit'])->name('user.groups.edit');
+
+// Handle update
+Route::put('user/groups/{id}', [grController::class, 'update'])->name('user.groups.update');
+
+// Delete group
+Route::delete('user/groups/{id}', [grController::class, 'destroy'])->name('user.groups.destroy');
+
+});
+
+ 
 
 }); 
 
@@ -97,12 +126,47 @@ Route::get('/admin/group-members/{groupId}', [GroupController::class, 'getGroupM
 
 
   Route::get('/get-groups-by-user/{id}', [ExpenseController::class, 'getGroupsByUser']);
+
+    Route::get('/apis', function () {
+    return view('admin.apis');
+})->name('admin.apis');
 }); 
 
+//  Route::get('/change-language', function () {
+//     $lang = request('lang');
 
- 
+//     if (in_array($lang, ['en', 'hi'])) {
+//         session()->put('locale', $lang);
+//     }
+
+//     // Debug output
+//     return back()->with('lang_set', session('locale'));
+// })->name('change.language');
+
+// routes/web.php
+// web.php
+Route::get('/change-language', function () {
+    $lang = request('lang');
+    session(['locale' => $lang]);
+    app()->setLocale($lang);
+    return back();
+})->name('change.language');
 
 
+
+
+Route::get('/test-mail', function () {
+    $details = [
+        'name' => 'Bhavya Choudhary',
+        'total' => 1234,
+        'month' => 'July 2025',
+       
+    ];
+
+    Mail::to('123@gmail.com')->send(new MonthlyExpenseSummary($details));
+
+    return " Mail Sent Successfully!";
+});
 
 
  

@@ -1,0 +1,32 @@
+<?php
+
+return [
+    'Admin Dashboard' => 'प्रशासनिक डैशबोर्ड',
+    'Analytics' => 'विश्लेषण',
+    'Users' => 'उपयोगकर्ता',
+    'Expenses' => 'खर्च',
+    'Groups' => 'समूह',
+    'Group Members' => 'समूह सदस्य',
+    'Reports' => 'रिपोर्ट्स',
+    'APIs' => 'एपीआई',
+    'Logout' => 'लॉग आउट',
+    'Total Users' => 'कुल उपयोगकर्ता',
+    'Total Expenses' => 'कुल खर्च',
+    'Active Splits' => 'सक्रिय विभाजन',
+    'Expense Trend' => 'खर्च प्रवृत्ति',
+    'Category Breakdown' => 'श्रेणी विभाजन',
+    'Admin Panel' => 'प्रशासन पैनल',
+
+
+     'analytics' => 'विश्लेषण',
+    'expenses' => 'खर्च',
+    'groups' => 'समूह',
+    'group_members' => 'समूह सदस्य',
+    'reports' => 'रिपोर्ट्स',
+    'logout' => 'लॉग आउट',
+    'total_users' => 'कुल उपयोगकर्ता',
+    'total_expenses' => 'कुल खर्च',
+    'active_splits' => 'सक्रिय विभाजन',
+    'expense_trend' => 'खर्च प्रवृत्ति',
+    'category_breakdown' => 'श्रेणी विभाजन',
+];

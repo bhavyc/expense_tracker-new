@@ -56,12 +56,18 @@
 </head>
 <body class="container py-5">
 
-  <div class="d-flex justify-content-between align-items-center mb-4">
-    <h2 class="fw-bold text-primary">👥 Group Members</h2>
+ <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4 gap-2">
+  <h2 class="fw-bold text-primary">👥 Group Members</h2>
+  <div class="d-flex gap-2">
+    <a href="{{ route('admin.dashboard') }}" class="btn btn-outline-primary">
+      🏠 Dashboard
+    </a>
     <a href="{{ route('admin.group-members.create') }}" class="btn btn-success shadow-sm">
       ➕ Add Group Member
     </a>
   </div>
+</div>
+
 
   @if(session('success'))
     <div class="alert alert-success alert-dismissible fade show" role="alert">
@@ -82,7 +88,7 @@
     <div class="group-card">
       <div class="d-flex justify-content-between align-items-center mb-3">
         <h5 class="mb-0">
-          <span class="text-secondary">Group #{{ $group->id }}</span> - 
+          <span class="text-secondary">Group {{ $loop->iteration}}</span> - 
           <span class="text-primary fw-semibold">{{ $group->name }}</span>
         </h5>
         <span class="badge bg-primary">{{ $groupMembers->count() }} Member{{ $groupMembers->count() > 1 ? 's' : '' }}</span>

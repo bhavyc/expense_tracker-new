@@ -90,14 +90,17 @@
     <div class="header">
         <h2>User Expense Analytics</h2>
         <form method="GET">
-            <select name="user_id" onchange="this.form.submit()">
-                <option value="">Select User</option>
-                @foreach($users as $user)
-                    <option value="{{ $user->id }}" {{ request('user_id') == $user->id ? 'selected' : '' }}>
-                        {{ $user->name }}
-                    </option>
-                @endforeach
-            </select>
+           <select name="user_id" onchange="this.form.submit()">
+    <option value="">Select User</option>
+    @foreach($users as $user)
+        @if($user->role !== 'admin') {{--  Exclude admin based on role --}}
+            <option value="{{ $user->id }}" {{ request('user_id') == $user->id ? 'selected' : '' }}>
+                {{ $user->name }}
+            </option>
+        @endif
+    @endforeach
+</select>
+
         </form>
     </div>
 

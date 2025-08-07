@@ -1,18 +1,14 @@
-
-
-
-
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ app()->getLocale() }}">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Admin Dashboard</title>
+  <title>@lang('Admin Dashboard')</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet"/>
   <style>
     body {
-      background: linear-gradient(135deg, #fdfbfb, #ebedee);
+      background: linear-gradient(135deg, #e8f5e9, #f1f8e9);
       font-family: 'Segoe UI', sans-serif;
       overflow-x: hidden;
     }
@@ -22,7 +18,7 @@
       height: 100vh;
       position: fixed;
       top: 0; left: 0;
-      background: linear-gradient(to bottom, #6a11cb, #2575fc);
+      background: linear-gradient(to bottom, #2e7d32, #66bb6a);
       padding-top: 60px;
       box-shadow: 2px 0 12px rgba(0,0,0,0.1);
     }
@@ -32,7 +28,7 @@
       align-items: center;
       gap: 10px;
       padding: 14px 24px;
-      color: #e0e8ff;
+      color: #e8f5e9;
       text-decoration: none;
       transition: all 0.3s ease;
     }
@@ -46,7 +42,7 @@
     .sidebar a.active {
       background-color: rgba(255, 255, 255, 0.1);
       color: #ffffff;
-      border-left: 5px solid #ff80ab;
+      border-left: 5px solid #a5d6a7;
       padding-left: 30px;
     }
 
@@ -55,8 +51,8 @@
     }
 
     .navbar {
-      background: linear-gradient(to right, #ffffff, #f5f5ff);
-      border-bottom: 1px solid #e0e0f0;
+      background: linear-gradient(to right, #ffffff, #e8f5e9);
+      border-bottom: 1px solid #c8e6c9;
       z-index: 1050;
     }
 
@@ -74,15 +70,15 @@
     .card {
       border: none;
       border-radius: 16px;
-      box-shadow: 0 6px 20px rgba(0,0,0,0.06);
-      background: linear-gradient(145deg, #ffffff, #f3eaff);
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
-      animation: fadeIn 0.7s ease-in-out;
+      background: linear-gradient(145deg, #ffffff, #dcedc8);
+      box-shadow: 0 6px 20px rgba(0,0,0,0.05);
+      transition: transform 0.4s ease, box-shadow 0.4s ease;
+      animation: fadeIn 0.8s ease-in-out;
     }
 
     .card:hover {
-      transform: translateY(-4px) scale(1.02);
-      box-shadow: 0 12px 24px rgba(0,0,0,0.08);
+      transform: translateY(-5px) scale(1.015);
+      box-shadow: 0 14px 28px rgba(0,0,0,0.08);
     }
 
     @keyframes fadeIn {
@@ -91,18 +87,18 @@
     }
 
     .card h4 {
-      color: #6a11cb;
+      color: #2e7d32;
       font-weight: bold;
     }
 
     .card small {
-      color: #6b7280;
+      color: #555;
     }
 
     h6 {
       font-weight: 600;
       margin-bottom: 16px;
-      color: #6a11cb;
+      color: #2e7d32;
     }
 
     canvas {
@@ -110,34 +106,76 @@
       border-radius: 12px;
       padding: 10px;
     }
+
+    .sidebar select {
+      display: block;
+      padding: 10px 15px;
+      color: #fff;
+      background-color: #388e3c;
+      border: none;
+      width: 100%;
+      text-align: left;
+      border-left: 4px solid transparent;
+      background-image: url('data:image/svg+xml;charset=UTF-8,<svg fill="%23ffffff" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/></svg>');
+      background-repeat: no-repeat;
+      background-position: right 10px center;
+      background-size: 16px;
+      padding-right: 30px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    .sidebar select:hover,
+    .sidebar select:focus {
+      background-color: #2e7d32;
+      border-left: 4px solid #a5d6a7;
+      outline: none;
+    }
   </style>
 </head>
 <body>
 
 <!-- Sidebar for large screens -->
 <div class="sidebar d-none d-md-block">
-  <a href="/admin/analytics" class="active"><i class="bi bi-bar-chart"></i> Analytics</a>
-  <a href="/admin/users"><i class="bi bi-people"></i> Users</a>
-  <a href="/admin/expenses"><i class="bi bi-wallet2"></i> Expenses</a>
-  <a href="/admin/groups"><i class="bi bi-collection"></i> Groups</a>
-  <a href="/admin/group-members"><i class="bi bi-person-lines-fill"></i> Group Members</a>
-  <a href="{{ route('reports.index') }}"><i class="bi bi-file-earmark-text"></i> Reports</a>
+  <a href="/admin/analytics" class="active"><i class="bi bi-bar-chart"></i> @lang('messages.Analytics')</a>
+  <a href="/admin/users"><i class="bi bi-people"></i> @lang('messages.Users')</a>
+  <a href="/admin/expenses"><i class="bi bi-wallet2"></i> @lang('messages.Expenses')</a>
+  <a href="/admin/groups"><i class="bi bi-collection"></i> @lang('messages.Groups')</a>
+  <a href="/admin/group-members"><i class="bi bi-person-lines-fill"></i> @lang('messages.Group Members')</a>
+  <a href="{{ route('reports.index') }}"><i class="bi bi-file-earmark-text"></i> @lang('messages.Reports')</a>
+  <a href="/admin/apis"><i class="bi bi-code-slash"></i> @lang('messages.APIs')</a>
+ <form method="GET" action="{{ route('change.language') }}">
+    <select name="lang" onchange="this.form.submit()">
+        <option value="en" {{ app()->getLocale() === 'en' ? 'selected' : '' }}>English</option>
+        <option value="hi" {{ app()->getLocale() === 'hi' ? 'selected' : '' }}>Hindi</option>
+    </select>
+</form>
+
+
+
 </div>
 
 <!-- Offcanvas Sidebar for mobile -->
 <div class="offcanvas offcanvas-start d-md-none" tabindex="-1" id="mobileSidebar">
   <div class="offcanvas-header">
-    <h5 class="offcanvas-title text-primary">Admin Panel</h5>
+    <h5 class="offcanvas-title text-success">@lang('messages.Admin Panel')</h5>
     <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
   </div>
   <div class="offcanvas-body p-0">
     <div class="sidebar bg-transparent h-100">
-      <a href="/admin/analytics" class="active"><i class="bi bi-bar-chart"></i> Analytics</a>
-      <a href="/admin/users"><i class="bi bi-people"></i> Users</a>
-      <a href="/admin/expenses"><i class="bi bi-wallet2"></i> Expenses</a>
-      <a href="/admin/groups"><i class="bi bi-collection"></i> Groups</a>
-      <a href="/admin/group-members"><i class="bi bi-person-lines-fill"></i> Group Members</a>
-      <a href="{{ route('reports.index') }}"><i class="bi bi-file-earmark-text"></i> Reports</a>
+      <a href="/admin/analytics" class="active"><i class="bi bi-bar-chart"></i> @lang('messages.Analytics')</a>
+      <a href="/admin/users"><i class="bi bi-people"></i> @lang('messages.Users')</a>
+      <a href="/admin/expenses"><i class="bi bi-wallet2"></i> @lang('messages.Expenses')</a>
+      <a href="/admin/groups"><i class="bi bi-collection"></i> @lang('messages.Groups')</a>
+      <a href="/admin/group-members"><i class="bi bi-person-lines-fill"></i> @lang('messages.Group Members')</a>
+      <a href="{{ route('reports.index') }}"><i class="bi bi-file-earmark-text"></i> @lang('messages.Reports')</a>
+      <a href="/admin/apis"><i class="bi bi-code-slash"></i> @lang('messages.APIs')</a>
+      <form method="GET" action="{{ route('change.language') }}">
+        <select name="lang" id="country1" onchange="this.form.submit()">
+          <option value="en" {{ app()->getLocale() === 'en' ? 'selected' : '' }}>English</option>
+          <option value="hi" {{ app()->getLocale() === 'hi' ? 'selected' : '' }}>Hindi</option>
+        </select>
+      </form>
     </div>
   </div>
 </div>
@@ -145,47 +183,53 @@
 <!-- Navbar -->
 <nav class="navbar fixed-top shadow-sm px-3">
   <div class="container-fluid">
-    <button class="btn btn-outline-primary d-md-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileSidebar">
+    <button class="btn btn-outline-success d-md-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileSidebar">
       <i class="bi bi-list"></i>
     </button>
     <div class="ms-auto d-flex align-items-center gap-3">
-      <span class="fw-semibold text-primary">
-        👤 {{ Auth::user()->name ?? 'Admin' }}
+      <span class="fw-semibold text-success">
+        👤 {{ Auth::guard('admin')->user()->name ?? 'Admin' }}
       </span>
       <form method="GET" action="{{ route('admin.logout') }}">
         @csrf
-        <button type="submit" class="btn btn-outline-primary btn-sm">
-          <i class="bi bi-box-arrow-right"></i> Logout
+        <button type="submit" class="btn btn-outline-success btn-sm">
+          <i class="bi bi-box-arrow-right"></i> @lang('Logout')
         </button>
       </form>
     </div>
   </div>
 </nav>
 
+<!-- @if(session('lang_set'))
+    <div class="alert alert-success text-center">
+        Language changed to: <strong>{{ session('lang_set') }}</strong>
+    </div>
+@endif -->
+
 <!-- Content -->
 <div class="content">
   <div class="row g-4 mb-4">
     <div class="col-sm-6 col-lg-3">
       <div class="card p-4 text-center">
-        <small class="text-muted">Total Users</small>
+        <small class="text-muted">@lang('messages.Total Users')</small>
         <h4>{{ $totalUsers }}</h4>
       </div>
     </div>
     <div class="col-sm-6 col-lg-3">
       <div class="card p-4 text-center">
-        <small class="text-muted">Total Expenses</small>
+        <small class="text-muted">@lang('messages.Total Expenses')</small>
         <h4>{{ number_format($totalExpenses) }}</h4>
       </div>
     </div>
     <div class="col-sm-6 col-lg-3">
       <div class="card p-4 text-center">
-        <small class="text-muted">Groups</small>
+        <small class="text-muted">@lang('messages.Groups')</small>
         <h4>{{ $totalGroups }}</h4>
       </div>
     </div>
     <div class="col-sm-6 col-lg-3">
       <div class="card p-4 text-center">
-        <small class="text-muted">Active Splits</small>
+        <small class="text-muted">@lang('messages.Active Splits')</small>
         <h4>{{ $totalSplits }}</h4>
       </div>
     </div>
@@ -194,13 +238,13 @@
   <div class="row g-4">
     <div class="col-lg-8">
       <div class="card p-4">
-        <h6>📈 Expense Trend</h6>
+        <h6>📈 @lang('messages.Expense Trend')</h6>
         <canvas id="lineChart"></canvas>
       </div>
     </div>
     <div class="col-lg-4">
       <div class="card p-4">
-        <h6>📊 Category Breakdown</h6>
+        <h6>📊 @lang('messages.Category Breakdown')</h6>
         <canvas id="pieChart"></canvas>
       </div>
     </div>
@@ -217,10 +261,10 @@
     data: {
       labels: @json($expenseTrendLabels),
       datasets: [{
-        label: 'Expenses',
+        label: '{{ __("Expenses") }}',
         data: @json($expenseTrendData),
-        borderColor: '#6a11cb',
-        backgroundColor: 'rgba(106, 17, 203, 0.1)',
+        borderColor: '#2e7d32',
+        backgroundColor: 'rgba(76, 175, 80, 0.2)',
         fill: true,
         tension: 0.4,
         pointRadius: 5,
@@ -234,7 +278,7 @@
       },
       animation: {
         duration: 1500,
-        easing: 'easeOutQuart'
+        easing: 'easeOutCubic'
       }
     }
   });
@@ -246,7 +290,7 @@
       labels: @json($categoryLabels),
       datasets: [{
         data: @json($categoryData),
-        backgroundColor: ['#6a11cb', '#ff80ab', '#00bcd4', '#9575cd'],
+        backgroundColor: ['#2e7d32', '#66bb6a', '#a5d6a7', '#c8e6c9'],
         borderWidth: 1
       }]
     },
@@ -262,6 +306,15 @@
     }
   });
 </script>
-
+  <script>
+      document.getElementById('langSelect').addEventListener('change', function() {
+    const lang = this.value;
+    const form = document.getElementById('langForm');
+    form.action = '/change-language/' + lang;
+    form.submit();
+  });
+  </script>
 </body>
 </html>
+
+ 

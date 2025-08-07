@@ -21,4 +21,8 @@ class Group extends Model
 {
     return $this->belongsTo(User::class, 'created_by');
 }
+public function members()
+{
+    return $this->hasMany(GroupMember::class);
+}
 }

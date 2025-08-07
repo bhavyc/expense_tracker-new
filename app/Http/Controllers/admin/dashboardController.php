@@ -17,10 +17,11 @@ class dashboardController extends Controller
 {
     $totalUsers = User::count();
     $totalGroups = Group::count();
+   
     $totalExpenses = Expense::count();
     $totalSplits = Split::count();
 
-    // Line Chart: Monthly Expense Trend
+    // Line Chart: Monthly Expense Trend banane ke liye 
     $monthlyExpenses = Expense::select(
         DB::raw("DATE_FORMAT(created_at, '%Y-%m') as month"),
         DB::raw("SUM(amount) as total")
@@ -32,7 +33,7 @@ class dashboardController extends Controller
     $expenseTrendLabels = $monthlyExpenses->pluck('month');
     $expenseTrendData = $monthlyExpenses->pluck('total');
 
-    // Doughnut Chart: Expenses by Category
+    // Doughnut Chart exxpenses by Category banane ke liye 
     $categorySummary = Expense::select('category', DB::raw('SUM(amount) as total'))
     ->groupBy('category')
     ->get();

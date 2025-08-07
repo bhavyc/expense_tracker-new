@@ -16,14 +16,15 @@ class ExpenseController extends Controller
      
     function index()
     {
-       $expenses = Expense::with(['user', 'group', 'splits.user'])->get();
+       $expenses = Expense::with(['user', 'group', 'splits.user'])->paginate(10);
 
         return view('admin.expenses.index', compact('expenses'));
     }
 
     function create()
     { 
-        $users= User::all();
+         
+        $users = User::where('role', '!=', 'admin')->get();
         $groups= Group::all();
         return view('admin.expenses.create', compact('users', 'groups'));
          
@@ -86,7 +87,7 @@ foreach($members as $member){
 
      function edit($id){
         $expense = Expense::findOrFail($id);
-        $users = User::all();
+       $users = User::where('role', '!=', 'admin')->get();
         $groups = Group::all();
         return view('admin.expenses.edit', compact('expense', 'users', 'groups'));
      }

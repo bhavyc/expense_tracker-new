@@ -10,7 +10,9 @@ class adminUserController extends Controller
    public function index()
     {
         // Load users with related expenses and groups
-        $users = User::with(['expenses', 'groups'])->get();
+        $users = User::with(['expenses', 'groups'])
+        ->where('role', '!=', 'admin')
+        ->paginate(10);
          
         return view('admin.users.index', compact('users'));
     }
@@ -20,7 +22,7 @@ class adminUserController extends Controller
         return view('admin.users.edit', compact('user'));
     }
 
-    // 🔁 Handle form submission for updating user
+     
     public function update(Request $request, $id)
     {
         $user = User::findOrFail($id);

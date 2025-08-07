@@ -64,11 +64,14 @@
 
         <div class="mb-3">
           <label for="created_by" class="form-label">Created By</label>
-          <select class="form-select" name="created_by" id="created_by" required>
-            @foreach ($users as $user)
-              <option value="{{ $user->id }}">{{ $user->name }}</option>
-            @endforeach
-          </select>
+         <select class="form-select" name="created_by" id="created_by" required>
+  @foreach ($users as $user)
+    @if ($user->role != 'admin')
+      <option value="{{ $user->id }}">{{ $user->name }}</option>
+    @endif
+  @endforeach
+</select>
+
         </div>
 
         <button type="submit" class="btn btn-primary w-100">Save Group</button>

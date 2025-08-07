@@ -13,7 +13,7 @@
     </style>
 </head>
 <body>
-    <h2>Udhyaar - Expense Report</h2>
+    <h2>Udhyar - Expense Report</h2>
     <p>Date Range: {{ request('from') ?? 'All' }} to {{ request('to') ?? 'All' }}</p>
 
     <table>
