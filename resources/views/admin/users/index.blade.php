@@ -64,7 +64,7 @@
     <div class="card p-4">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <a href="{{ route('admin.dashboard') }}" class="btn btn-outline-primary">
-                🏠 Dashboard
+                 Dashboard
             </a>
             <h2 class="mb-0 text-center flex-grow-1">👥 All Registered Users</h2>
             <div style="width: 160px;"></div>

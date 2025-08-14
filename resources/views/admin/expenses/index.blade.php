@@ -84,8 +84,8 @@
     <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3">
       <h2 class="m-0">All Expenses</h2>
       <div class="d-flex flex-column flex-sm-row gap-2">
-        <a href="{{ route('admin.dashboard') }}" class="btn btn-dashboard">🏠 Dashboard</a>
-        <a href="{{ route('admin.expenses.create') }}" class="btn btn-light">➕ Add New Expense</a>
+        <a href="{{ route('admin.dashboard') }}" class="btn btn-dashboard"> Dashboard</a>
+        <a href="{{ route('admin.expenses.create') }}" class="btn btn-light">Add New Expense</a>
       </div>
     </div>
   </div>
@@ -161,7 +161,7 @@
       </table>
     </div>
 
-    <!-- Pagination -->
+   
     @if ($expenses->hasPages())
       <div class="d-flex justify-content-center mt-4">
         {!! $expenses->links('pagination::bootstrap-5') !!}

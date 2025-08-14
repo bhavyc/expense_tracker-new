@@ -84,7 +84,7 @@
 <body>
   <div class="glass-card">
     <div class="text-center mb-4">
-      <h4>🌿 Admin Panel Login</h4>
+      <h4>Admin Panel Login</h4>
     </div>
     <form action="{{ route('admin.authenticate') }}" method="POST" class="needs-validation" novalidate>
       @csrf

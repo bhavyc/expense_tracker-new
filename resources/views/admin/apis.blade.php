@@ -25,7 +25,7 @@
       <div class="accordion-item">
         <h2 class="accordion-header" id="authHeading">
           <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#authCollapse" aria-expanded="true" aria-controls="authCollapse">
-            🔐 Authentication APIs
+             Authentication APIs
           </button>
         </h2>
         <div id="authCollapse" class="accordion-collapse collapse show" aria-labelledby="authHeading" data-bs-parent="#apiAccordion">
@@ -43,7 +43,7 @@
       <div class="accordion-item">
         <h2 class="accordion-header" id="userHeading">
           <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#userCollapse" aria-expanded="false" aria-controls="userCollapse">
-            👥 User APIs
+              User APIs
           </button>
         </h2>
         <div id="userCollapse" class="accordion-collapse collapse" aria-labelledby="userHeading" data-bs-parent="#apiAccordion">
@@ -60,7 +60,7 @@
       <div class="accordion-item">
         <h2 class="accordion-header" id="groupHeading">
           <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#groupCollapse" aria-expanded="false" aria-controls="groupCollapse">
-            📂 Group APIs
+              Group APIs
           </button>
         </h2>
         <div id="groupCollapse" class="accordion-collapse collapse" aria-labelledby="groupHeading" data-bs-parent="#apiAccordion">
@@ -81,7 +81,7 @@
       <div class="accordion-item">
         <h2 class="accordion-header" id="expenseHeading">
           <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#expenseCollapse" aria-expanded="false" aria-controls="expenseCollapse">
-            💰 Expense APIs
+              Expense APIs
           </button>
         </h2>
         <div id="expenseCollapse" class="accordion-collapse collapse" aria-labelledby="expenseHeading" data-bs-parent="#apiAccordion">
@@ -101,7 +101,7 @@
       <div class="accordion-item">
         <h2 class="accordion-header" id="dashboardHeading">
           <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#dashboardCollapse" aria-expanded="false" aria-controls="dashboardCollapse">
-            📊 Dashboard API
+             Dashboard API
           </button>
         </h2>
         <div id="dashboardCollapse" class="accordion-collapse collapse" aria-labelledby="dashboardHeading" data-bs-parent="#apiAccordion">

@@ -134,7 +134,8 @@
   <a href="{{ route('user.expenses.index') }}"><i class="bi bi-wallet2"></i> {{ __('messages.expenses') }}</a>
   <a href="/admin/groups"><i class="bi bi-collection"></i> {{ __('messages.groups') }}</a>
   <a href="{{ route('reports.index') }}"><i class="bi bi-file-earmark-text"></i> {{ __('messages.reports') }}</a>
-
+  <a href="{{ route('feedback.form') }}"><i class="bi bi-people"></i> {{ __('messages.feedback_query') }}</a>
+<a href="{{ route('feedback.my') }}"><i class="bi bi-people"></i> {{ __('messages.my_feedbacks') }}</a>
   <!-- Language switch -->
   <form method="GET" action="{{ route('change.language') }}">
     <select name="lang" onchange="this.form.submit()">

@@ -49,7 +49,7 @@
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h2 class="animated-title">All Splits</h2>
         <a href="{{ route('admin.splits.create') }}" class="btn btn-success btn-sm add-btn">
-            ➕ Add New Split
+            Add New Split
         </a>
     </div>
 
@@ -82,11 +82,11 @@
                         <td>₹{{ number_format($split->amount, 2) }}</td>
                         <td><span class="badge bg-{{ $split->type === 'lent' ? 'primary' : 'info' }}">{{ ucfirst($split->type) }}</span></td>
                         <td>
-                            <a href="{{ route('admin.splits.edit', $split->id) }}" class="btn btn-warning btn-sm">✏️ Edit</a>
+                            <a href="{{ route('admin.splits.edit', $split->id) }}" class="btn btn-warning btn-sm"> Edit</a>
                             <form action="{{ route('admin.splits.destroy', $split->id) }}" method="POST" class="d-inline">
                                 @csrf
                                 @method('DELETE')
-                                <button onclick="return confirm('Are you sure?')" class="btn btn-danger btn-sm">🗑️ Delete</button>
+                                <button onclick="return confirm('Are you sure?')" class="btn btn-danger btn-sm"> Delete</button>
                             </form>
                         </td>
                     </tr>

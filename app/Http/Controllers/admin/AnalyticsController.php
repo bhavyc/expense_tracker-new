@@ -65,17 +65,17 @@ public function userAnalytics($userId)
 {
     $user = User::findOrFail($userId);
 
-    // 1. Total amount spent
+     
     $totalSpent = Expense::where('user_id', $userId)->sum('amount');
 
-    // 2. Amount spent per category (for bar and pie charts)
+    
     $categoryWise = Expense::where('user_id', $userId)
         ->select('category_id', \DB::raw('SUM(amount) as total_spent'))
         ->groupBy('category_id')
         ->with('category')
         ->get();
 
-    // 3. Monthly trend (amount spent per month)
+     
     $monthlyTrend = Expense::where('user_id', $userId)
         ->selectRaw('DATE_FORMAT(created_at, "%Y-%m") as month, SUM(amount) as total')
         ->groupBy('month')

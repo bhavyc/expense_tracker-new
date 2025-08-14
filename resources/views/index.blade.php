@@ -45,6 +45,30 @@
             color: #888;
             font-style: italic;
         }
+
+        .weekly-expenses-btn {
+    display: inline-block;
+    padding: 10px 20px;
+    background: linear-gradient(135deg, #4CAF50, #45a049);
+    color: white;
+    font-weight: 500;
+    border-radius: 25px;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+}
+.weekly-expenses-btn:hover {
+    background: linear-gradient(135deg, #45a049, #3e8e41);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 10px rgba(0,0,0,0.15);
+}
+.weekly-expenses-btn:active {
+    transform: translateY(0);
+    box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+}
+.center-div {
+    text-align: center;
+}
     </style>
 </head>
 <body>
@@ -57,9 +81,17 @@
             @if($group->users->count())
                 <div class="members-container">
                     @foreach($group->users as $user)
-                        <div class="member-pill">{{ $user->name ?? 'No Name' }}</div>
+                        <div class="member-pill">
+                            {{ $user->name ?? 'No Name' }} - ₹{{ $user->expenses->sum('amount') }}
+                        </div>
                     @endforeach
                 </div>
+                <div class="mt-3 mb-3 text-center center-div">
+    <a href="{{ route('group.weekly-expenses', $group->id ?? ' ') }}" 
+       class="weekly-expenses-btn">
+        Weekly Expenses
+    </a>
+</div>
             @else
                 <p class="no-members">No members in this group.</p>
             @endif

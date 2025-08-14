@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Your Groups</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
     <style>
         body { background: #f8f9fa; }
         .card {
@@ -24,47 +24,146 @@
             align-items: center;
             margin-bottom: 20px;
         }
-        .group-actions {
-            display: flex;
-            gap: 10px;
+        .group-actions { display: flex; gap: 10px; }
+        .budget-info { margin-top: 10px; font-weight: 600; }
+        .budget-left { color: green; }
+        .budget-over { color: red; }
+        .badge-permanent {
+            font-size: 0.75rem;
+            background-color: #198754;
+            color: white;
+            padding: 0.2em 0.5em;
+            border-radius: 0.25rem;
+            margin-left: 0.5rem;
+            vertical-align: middle;
+            user-select: none;
         }
+        .budget-input { width: 100px; display: inline-block; }
+        .inline-message { font-size: 0.85rem; margin-left: 10px; }
     </style>
 </head>
 <body class="p-4">
 
-    <div class="header-btn">
-        <h1>Your Groups</h1>
-        <a href="{{ route('user.groups.create.form') }}" class="btn btn-success btn-animated">+ Add New Group</a>
-    </div>
+<div class="header-btn">
+    <h1>Your Groups</h1>
+    <a href="{{ route('user.groups.create') }}" class="btn btn-success btn-animated">+ Add New Group</a>
+</div>
 
-    {{-- Success message --}}
-    @if(session('success'))
-        <div class="alert alert-success">{{ session('success') }}</div>
-    @endif
+@if($groups->isEmpty())
+    <div class="alert alert-warning">You are not part of any group yet.</div>
+@else
+    @foreach($groups as $group)
+        @php
+            $spent = $group->totalSpent ?? 0;
+            $budgetLeft = $group->budget - $spent;
+        @endphp
 
-    @if($groups->isEmpty())
-        <div class="alert alert-warning">You are not part of any group yet.</div>
-    @else
-        @foreach($groups as $group)
-            <div class="card mb-3 shadow-sm">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <h5 class="mb-1">{{ $group->name }}</h5>
-                        <p class="text-muted mb-1">{{ $group->description }}</p>
-                        <small class="text-secondary">Created on: {{ $group->created_at->format('d M Y') }}</small>
-                    </div>
-                    <div class="group-actions">
-                        <a href="{{ route('user.groups.edit', $group->id) }}" class="btn btn-primary btn-sm btn-animated">Edit</a>
-                        <form action="{{ route('user.groups.destroy', $group->id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this group?');">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="btn btn-danger btn-sm btn-animated">Delete</button>
-                        </form>
+        <div class="card mb-3 shadow-sm">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h5 class="mb-1">
+                        {{ $group->name }}
+                        @if($group->permanent)
+                            <span class="badge-permanent" title="This is a permanent group">Permanent</span>
+                        @endif
+                    </h5>
+                    <p class="text-muted mb-1">{{ $group->description }}</p>
+                    <small class="text-secondary">Created on: {{ $group->created_at->format('d M Y') }}</small>
+
+                    <div class="budget-info mt-2">
+                        @if($group->created_by === auth()->id())
+                            <form class="update-budget-form" data-group-id="{{ $group->id }}">
+                                <div>
+                                    Budget: ₹
+                                    <input type="number" name="budget" value="{{ $group->budget }}" 
+                                           min="0" step="0.01" 
+                                           class="form-control form-control-sm budget-input d-inline-block">
+                                    <button type="submit" class="btn btn-sm btn-outline-primary">Save</button>
+                                    <span class="inline-message text-success d-none"></span>
+                                    <span class="inline-message text-danger d-none"></span>
+                                </div>
+                            </form>
+                        @else
+                            Budget: ₹{{ number_format($group->budget, 2) }}
+                        @endif
+
+                        <div>Total Spent: ₹{{ number_format($spent, 2) }}</div>
+                        <div class="{{ $budgetLeft >= 0 ? 'budget-left' : 'budget-over' }}">
+                            Budget Left: ₹<span class="budget-left-value">{{ number_format(max($budgetLeft, 0), 2) }}</span>
+                        </div>
+                        @if($budgetLeft < 0)
+                            <small class="text-danger">Budget exceeded by ₹{{ number_format(abs($budgetLeft), 2) }}</small>
+                        @endif
                     </div>
                 </div>
+
+                <div class="group-actions">
+                    <a href="{{ route('user.groups.edit', $group->id) }}" class="btn btn-primary btn-sm btn-animated">Edit</a>
+                    <form action="{{ route('user.groups.destroy', $group->id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this group?');" style="display:inline;">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="btn btn-danger btn-sm btn-animated">Delete</button>
+                    </form>
+                </div>
             </div>
-        @endforeach
-    @endif
+
+            @if($group->created_by === auth()->id())
+                <div class="mt-3">
+                    <form action="{{ route('user.groups.members.add', $group->id) }}" method="POST" class="d-flex gap-2">
+                        @csrf
+                        <select name="user_id" class="form-select form-select-sm" style="max-width:200px;" required>
+                            <option value="">Select User</option>
+                            @foreach($users as $user)
+                                @if($user->id !== $group->created_by)
+                                    <option value="{{ $user->id }}">{{ $user->name }}</option>
+                                @endif
+                            @endforeach
+                        </select>
+                        <button type="submit" class="btn btn-sm btn-success btn-animated">Add Member</button>
+                    </form>
+                </div>
+            @endif
+        </div>
+    @endforeach
+@endif
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+$(document).on('submit', '.update-budget-form', function(e) {
+    e.preventDefault();
+    let form = $(this);
+    let groupId = form.data('group-id');
+    let budget = form.find('input[name="budget"]').val();
+    let successMsg = form.find('.text-success');
+    let errorMsg = form.find('.text-danger');
+
+    $.ajax({
+        url: `/account/groups/${groupId}/budget`,
+        method: 'PATCH',
+        data: {
+            budget: budget,
+            _token: '{{ csrf_token() }}'
+        },
+        success: function(res) {
+            successMsg.addClass('d-none');
+            errorMsg.addClass('d-none');
+
+            if (res.success) {
+                form.closest('.budget-info').find('.budget-left-value')
+                    .text(parseFloat(res.budgetLeft).toFixed(2));
+                form.find('input[name="budget"]').val(parseFloat(res.budget).toFixed(2));
+                successMsg.text('Budget updated successfully!').removeClass('d-none');
+            } else if (res.error) {
+                errorMsg.text(res.error).removeClass('d-none');
+            }
+        },
+        error: function(xhr) {
+            successMsg.addClass('d-none');
+            errorMsg.text('Error updating budget').removeClass('d-none');
+        }
+    });
+});
+</script>
 
 </body>
 </html>

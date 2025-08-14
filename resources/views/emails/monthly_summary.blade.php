@@ -12,6 +12,6 @@
         <li><strong>Total Expenses:</strong> ₹{{ $totalExpense }}</li>
     </ul>
 
-    <p>Thank you for using <strong>SplitEase</strong>!</p>
+    <p>Thank you for using <strong>Udhyar</strong>!</p>
 </body>
 </html>

@@ -74,6 +74,17 @@
             </select>
           </div>
 
+          <div class="mb-3">
+            <label class="form-label">Budget (₹)</label>
+            <input type="number" name="budget" class="form-control" step="0.01" min="0">
+          </div>
+
+         
+          <div class="mb-3 form-check">
+            <input type="checkbox" class="form-check-input" id="is_permanent" name="permanent" value="1">
+            <label class="form-check-label" for="is_permanent">Permanent</label>
+          </div>
+
           <div class="d-grid">
             <button type="submit" class="btn btn-primary btn-lg">Save Group</button>
           </div>

@@ -10,7 +10,7 @@
       background: #f0f2f5;
     }
 
-    /* Card Animation */
+     
     .card {
       transition: all 0.3s ease-in-out, box-shadow 0.5s cubic-bezier(0.23, 1, 0.32, 1);
       border: none;
@@ -29,7 +29,7 @@
       box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(33, 150, 243, 0.09);
     }
 
-    /* Input Focus Animation */
+     
     .form-control, .form-select {
       transition: box-shadow 0.2s ease, border-color 0.2s;
     }
@@ -39,7 +39,7 @@
       outline: none;
     }
 
-    /* Label Animation */
+     
     .form-label {
       position: relative;
       padding-left: 8px;
@@ -50,7 +50,7 @@
       to { opacity: 1; left: 0; }
     }
 
-    /* Button Animation */
+     
     .btn-primary {
       transition: background 0.2s, transform 0.13s;
       box-shadow: 0 5px 15px rgba(13, 110, 253, 0.13);
@@ -63,7 +63,7 @@
       background: linear-gradient(90deg,#2262d4,#0056b3 90%);
     }
 
-    /* Animate field on error (optional) */
+    
     .form-control.is-invalid, .form-select.is-invalid {
       animation: fieldBounce 0.23s linear;
     }

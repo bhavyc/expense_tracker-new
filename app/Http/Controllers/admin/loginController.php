@@ -21,8 +21,7 @@ class loginController extends Controller
             'email' => 'required|email',
             'password' => 'required|min:6',
         ]);
-        // Authentication logic here
-        // Redirect to admin dashboard or show error
+        
         if (Auth::guard('admin')->attempt(['email' => $request->email, 'password' => $request->password])) {
             if( Auth::guard('admin')->user()->role !== 'admin') {
                 Auth::guard('admin')->logout();

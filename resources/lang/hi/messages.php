@@ -16,6 +16,9 @@ return [
     'Expense Trend' => 'खर्च प्रवृत्ति',
     'Category Breakdown' => 'श्रेणी विभाजन',
     'Admin Panel' => 'प्रशासन पैनल',
+      'feedback_query' => 'प्रतिक्रिया / प्रश्न',
+    'my_feedbacks' => 'मेरी प्रतिक्रियाएँ',
+    'feedbacks'=> 'प्रतिक्रियाएँ',
 
 
      'analytics' => 'विश्लेषण',

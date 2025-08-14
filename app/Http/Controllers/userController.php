@@ -29,11 +29,33 @@ class userController extends Controller
      
 public function index()
 {
+    
     $user = Auth::user();
 
-    
-    $groups = $user->groups()->with(['users'])->get();
+$groups = $user->groups()
+    ->with(['users' => function ($userQuery) {
+        $userQuery->with(['expenses' => function ($expenseQuery) {
+            
+        }]);
+    }])
+    ->get();
 
+ 
+    
+$groups->each(function ($group) {
+    $group->users->each(function ($member) use ($group) {
+        $member->setRelation('expenses', 
+            $member->expenses->where('group_id', $group->id)
+             
+        );
+    });
+});
+  
+    // $user = Auth::user();
+
+    
+    // $groups = $user->groups()->with(['users'])->get();
+     
     return view('index', ['groups' => $groups]);
 }
 

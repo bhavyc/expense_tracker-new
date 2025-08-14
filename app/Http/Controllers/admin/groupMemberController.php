@@ -4,33 +4,33 @@ namespace App\Http\Controllers\admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\User; // Assuming you have a User model
-use App\Models\Group; // Assuming you have a Group model    
-use App\Models\GroupMember; // Assuming you have a GroupMember model
+use App\Models\User;  
+use App\Models\Group;  
+use App\Models\GroupMember;  
 class groupMemberController extends Controller
 {
      function index()
     {
-         $members = GroupMember::with(['user', 'group'])->get(); // Eager load user and group relationships
+         $members = GroupMember::with(['user', 'group'])->get();  
         return view('admin.group-members.index', compact('members'));
                       
     }
 
     function create(){
-         $users = User::where('role', '!=', 'admin')->get();// Assuming you have a User model
-        $groups = Group::all(); // Assuming you have a Group model
+         $users = User::where('role', '!=', 'admin')->get(); 
+        $groups = Group::all();  
         return view('admin.group-members.create', compact('users', 'groups'));
     }
 
     function store(Request $request)
     {
-        // Logic to store a new group member
+         
         $request->validate([
             'user_id' => 'required|exists:users,id',
             'group_id' => 'required|exists:groups,id',
         ]);
 
-        // Assuming you have a GroupMember model
+        
         $groupMember = new GroupMember();
         $groupMember->user_id = $request->user_id;
         $groupMember->group_id = $request->group_id;

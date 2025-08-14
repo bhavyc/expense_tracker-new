@@ -60,10 +60,10 @@
   <h2 class="fw-bold text-primary">👥 Group Members</h2>
   <div class="d-flex gap-2">
     <a href="{{ route('admin.dashboard') }}" class="btn btn-outline-primary">
-      🏠 Dashboard
+       Dashboard
     </a>
     <a href="{{ route('admin.group-members.create') }}" class="btn btn-success shadow-sm">
-      ➕ Add Group Member
+       Add Group Member
     </a>
   </div>
 </div>

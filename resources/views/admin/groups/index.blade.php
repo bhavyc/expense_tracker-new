@@ -39,6 +39,11 @@
       transform: scale(1.05);
     }
 
+    .badge {
+      font-size: 0.85rem;
+      padding: 0.35em 0.65em;
+    }
+
     .fade-in {
       animation: fadeIn 0.6s ease;
     }
@@ -69,6 +74,8 @@
             <th>#</th>
             <th>Group Name</th>
             <th>Description</th>
+            <th>Budget</th>
+            <th>Permanent</th>
             <th>Created By</th>
             <th>Actions</th>
           </tr>
@@ -76,9 +83,23 @@
         <tbody>
           @foreach($groups as $key => $group)
           <tr>
-            <td>{{ $key+1 }}</td>
+            <td>{{ $key + 1 }}</td>
             <td>{{ $group->name }}</td>
             <td>{{ $group->description }}</td>
+            <td>
+              @if(!is_null($group->budget))
+                ₹{{ number_format($group->budget, 2) }}
+              @else
+                <span class="text-muted">Not Set</span>
+              @endif
+            </td>
+            <td>
+              @if($group->permanent)
+                <span class="badge bg-success">Yes</span>
+              @else
+                <span class="badge bg-secondary">No</span>
+              @endif
+            </td>
             <td>{{ $group->creator->name ?? 'N/A' }}</td>
             <td>
               <a href="{{ route('admin.groups.edit', $group->id) }}" class="btn btn-outline-primary btn-sm">Edit</a>
@@ -93,7 +114,7 @@
 
           @if ($groups->isEmpty())
             <tr>
-              <td colspan="5" class="text-center text-muted">No groups found.</td>
+              <td colspan="7" class="text-center text-muted">No groups found.</td>
             </tr>
           @endif
         </tbody>

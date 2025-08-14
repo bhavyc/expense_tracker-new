@@ -33,7 +33,7 @@ class dashboardController extends Controller
     $expenseTrendLabels = $monthlyExpenses->pluck('month');
     $expenseTrendData = $monthlyExpenses->pluck('total');
 
-    // Doughnut Chart exxpenses by Category banane ke liye 
+     
     $categorySummary = Expense::select('category', DB::raw('SUM(amount) as total'))
     ->groupBy('category')
     ->get();

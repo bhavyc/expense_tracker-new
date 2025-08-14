@@ -18,7 +18,7 @@ class dashboardController extends Controller
         $user = Auth::user();
 
        
-        $totalUsers = 1; // Since this dashboard is per user
+        $totalUsers = 1;  
         $totalExpenses = Expense::where('user_id', $user->id)->sum('amount');
         $totalGroups = Group::where('created_by', $user->id)->count();
 

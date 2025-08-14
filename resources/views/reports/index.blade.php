@@ -7,7 +7,7 @@
 </head>
 <body style="background-color: #f8f9fa">
     <div class="container py-4">
-        <h2 class="mb-4">🧾 Expense Reports</h2>
+        <h2 class="mb-4"> Expense Reports</h2>
 
         <form action="{{ route('reports.index') }}" method="GET" class="row g-3">
             <div class="col-md-4">
@@ -19,13 +19,13 @@
                 <input type="date" name="to" class="form-control" value="{{ request('to') }}">
             </div>
             <div class="col-md-4 d-flex align-items-end">
-                <button type="submit" class="btn btn-primary w-100">🔍 Filter</button>
+                <button type="submit" class="btn btn-primary w-100"> Filter</button>
             </div>
         </form>
 
         <div class="mt-4">
-            <a href="{{ route('reports.export.pdf', request()->query()) }}" class="btn btn-danger me-2">📄 Export as PDF</a>
-            <a href="{{ route('reports.export.csv', request()->query()) }}" class="btn btn-success">📥 Export as CSV</a>
+            <a href="{{ route('reports.export.pdf', request()->query()) }}" class="btn btn-danger me-2">Export as PDF</a>
+            <a href="{{ route('reports.export.csv', request()->query()) }}" class="btn btn-success"> Export as CSV</a>
         </div>
 
         <div class="mt-4 bg-white p-3 rounded shadow-sm">

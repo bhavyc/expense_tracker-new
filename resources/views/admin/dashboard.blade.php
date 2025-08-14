@@ -144,6 +144,7 @@
   <a href="/admin/group-members"><i class="bi bi-person-lines-fill"></i> @lang('messages.Group Members')</a>
   <a href="{{ route('reports.index') }}"><i class="bi bi-file-earmark-text"></i> @lang('messages.Reports')</a>
   <a href="/admin/apis"><i class="bi bi-code-slash"></i> @lang('messages.APIs')</a>
+  <a href="/admin/feedbacks"><i class="bi bi-code-slash"></i> @lang('messages.feedbacks')</a>
  <form method="GET" action="{{ route('change.language') }}">
     <select name="lang" onchange="this.form.submit()">
         <option value="en" {{ app()->getLocale() === 'en' ? 'selected' : '' }}>English</option>
@@ -155,7 +156,7 @@
 
 </div>
 
-<!-- Offcanvas Sidebar for mobile -->
+ 
 <div class="offcanvas offcanvas-start d-md-none" tabindex="-1" id="mobileSidebar">
   <div class="offcanvas-header">
     <h5 class="offcanvas-title text-success">@lang('messages.Admin Panel')</h5>
@@ -263,12 +264,16 @@
       datasets: [{
         label: '{{ __("Expenses") }}',
         data: @json($expenseTrendData),
-        borderColor: '#2e7d32',
+        // borderColor: '#2e7d32',
         backgroundColor: 'rgba(76, 175, 80, 0.2)',
-        fill: true,
+        fill: false,
+        borderWidth: 0,
         tension: 0.4,
         pointRadius: 5,
-        pointHoverRadius: 8
+        pointHoverRadius: 8,
+          // pointBorderWidth: 3,          // Bold border
+  pointBackgroundColor: '#2e7d32',
+  pointBorderColor: '#1b5e20', 
       }]
     },
     options: {

@@ -4,9 +4,9 @@ namespace App\Http\Controllers\admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\Split; // Assuming you have a Split model
-use App\Models\Expense; // Assuming you have an Expense model
-use App\Models\User; // Assuming you have a User model
+use App\Models\Split;  
+use App\Models\Expense;  
+use App\Models\User;  
 class splitController extends Controller
 {
      function index(){
@@ -15,19 +15,19 @@ class splitController extends Controller
 
      }
       function create(){
-        $expenses = Expense::all(); // Assuming you have an Expense model
-        $users = User::all(); // Assuming you have a User model
+        $expenses = Expense::all();  
+        $users = User::all();  
         return view('admin.splits.create', compact('expenses', 'users'));
      
     }
     function store(Request $request)
     {
-        // Logic to store a new split
+         
         $request->validate([
             'expense_id' => 'required|exists:expenses,id',
             'user_id' => 'required|exists:users,id',
             'amount' => 'required|numeric|min:0',
-            'type' => 'required|in:owed,lent', // Validate type as either owned or lent
+            'type' => 'required|in:owed,lent',  
         ]);
 
         $split = new Split();
@@ -41,7 +41,7 @@ class splitController extends Controller
     }
     function edit($id)
     {
-        // Split edit karne ke liye hai
+         
         $split = Split::findOrFail($id);
         $expenses = Expense::all();
         $users = User::all();

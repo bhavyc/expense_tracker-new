@@ -1,92 +1,192 @@
 <?php
 
+ 
+
+// namespace App\Http\Controllers\Api;
+
+// use App\Http\Controllers\Controller;
+// use Illuminate\Http\Request;
+// use App\Models\User;
+// use Illuminate\Support\Facades\Hash;
+// use Illuminate\Support\Facades\Auth;
+
+// class AuthController extends Controller
+// {
+//     public function register(Request $request)
+//     {
+//         $request->validate([
+//             'name' => 'required|string|max:255',
+//             'email' => 'required|email|unique:users,email',
+//             'password' => 'required|string|min:6|confirmed', // password_confirmation zaroori hai
+//         ]);
+
+//         $user = User::create([
+//             'name' => $request->name,
+//             'email' => $request->email,
+//             'password' => Hash::make($request->password),
+//         ]);
+
+//         $token = $user->createToken('ApiToken')->plainTextToken;
+
+//         return response()->json([
+//             'success' => true,
+//             'message' => 'User Created Successfully.',
+//             'user' => $user,
+//             'token' => $token,
+//             'token_type' => 'Bearer',
+//         ], 201);
+//     }
+
+//     public function login(Request $request)
+//     {
+//         $request->validate([
+//             'email' => 'required|email',
+//             'password' => 'required|string|min:6',
+//         ]);
+
+//         if (!Auth::attempt($request->only('email', 'password'))) {
+//             return response()->json([
+//                 'success' => false,
+//                 'message' => 'Invalid credentials.',
+//             ], 401);
+//         }
+
+//         $user = Auth::user();
+//         $token = $user->createToken('ApiToken')->plainTextToken;
+
+//         return response()->json([
+//             'success' => true,
+//             'message' => 'User Logged In Successfully.',
+//             'user' => $user,
+//             'token' => $token,
+//             'token_type' => 'Bearer',
+//         ], 200);
+//     }
+
+//     public function logout(Request $request)
+//     {
+//         $request->user()->tokens()->delete();
+
+//         return response()->json([
+//             'success' => true,
+//             'message' => 'Logged out successfully.',
+//         ]);
+//     }
+
+//     public function user(Request $request)
+// {
+//     return response()->json($request->user());
+// }
+
+// }
+ 
+
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\User;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Auth;
 
-class authController extends Controller
+class AuthController extends Controller
 {
+    // Register API
     public function register(Request $request)
     {
-        $credentials = Validator::make($request->all(), [     
+        $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
-            'password' => 'required|min:6',
+            'phone_number' => 'required|string|max:15|unique:users,phone_number', // added
+            'password' => 'required|string|min:6|confirmed',
         ]);
-
-        if ($credentials->fails()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Validation Error.',
-                'errors' => $credentials->errors()
-            ], 401);
-        }
 
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
+            'phone_number' => $request->phone_number, // save phone number
             'password' => Hash::make($request->password),
         ]);
 
-        if ($user) {
-            return response()->json([
-                'success' => true,
-                'message' => 'User Created Successfully.',
-                'user' => $user
-            ], 200);
-        } else {
-            return response()->json([
-                'success' => false,
-                'message' => 'User Not Created.',
-                'user' => null
-            ], 401);
-        }
-    }
-
-    public function login(Request $req)
-    {
-        $credentials = Validator::make($req->all(), [   // ✅ Fixed here
-            'email' => 'required|email',
-            'password' => 'required|min:6',
-        ]);
-
-        if ($credentials->fails()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Validation Error.',
-                'errors' => $credentials->errors()
-            ], 401);
-        }
-
-        if (Auth::attempt(['email' => $req->email, 'password' => $req->password])) {
-            $user = Auth::user();
-            return response()->json([
-                'success' => true,
-                'message' => 'User Logged In Successfully.',
-                'token' => $user->createToken('ApiToken')->plainTextToken,
-                'type' => 'Bearer'
-            ], 200);
-        } else {
-            return response()->json([
-                'success' => false,
-                'message' => 'Unauthorised.',
-            ], 401);
-        }
-    }
-
-    public function logout(Request $req)
-    {
-        $req->user()->tokens()->delete();
+        $token = $user->createToken('ApiToken')->plainTextToken;
 
         return response()->json([
             'success' => true,
-            'user' => $req->user(),
-            'message' => 'You are Logged Out Successfully.'
+            'message' => 'User Created Successfully.',
+            'user' => $user,
+            'token' => $token,
+            'token_type' => 'Bearer',
+        ], 201);
+    }
+
+    // Login API (email or phone_number)
+    public function login(Request $request)
+    {
+        $request->validate([
+            'login' => 'required|string', 
+            'password' => 'required|string|min:6',
+        ]);
+
+        $login_field = filter_var($request->login, FILTER_VALIDATE_EMAIL) ? 'email' : 'phone_number';
+
+        if (!Auth::attempt([$login_field => $request->login, 'password' => $request->password])) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Invalid credentials.',
+            ], 401);
+        }
+
+        $user = Auth::user();
+        $token = $user->createToken('ApiToken')->plainTextToken;
+
+        return response()->json([
+            'success' => true,
+            'message' => 'User Logged In Successfully.',
+            'user' => $user,
+            'token' => $token,
+            'token_type' => 'Bearer',
         ], 200);
     }
+
+    // Logout API
+    public function logout(Request $request)
+    {
+        $request->user()->tokens()->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Logged out successfully.',
+        ]);
+    }
+
+    // Current Authenticated User
+    public function user(Request $request)
+    {
+        return response()->json($request->user());
+    }
+
+
+    // Lookup user by phone number
+public function lookupByPhone(Request $request)
+{
+    $request->validate([
+        'phone_number' => 'required|string|max:15',
+    ]);
+
+    $user = User::where('phone_number', $request->phone_number)->first();
+
+    if ($user) {
+        return response()->json([
+            'success' => true,
+            'message' => 'User found.',
+            'user' => $user,
+        ], 200);
+    } else {
+        return response()->json([
+            'success' => false,
+            'message' => 'No user found with this phone number.',
+        ], 404);
+    }
+}
+
 }

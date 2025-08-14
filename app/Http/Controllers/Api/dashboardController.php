@@ -10,48 +10,55 @@ use App\Models\Expense;
 use App\Models\User;
 use App\Models\Group;
 use Illuminate\Support\Facades\DB;
-
+use Illuminate\Support\Facades\Auth;
+use Carbon\Carbon;
+use App\Models\GroupMember;
+use App\Models\Split;
+use App\Models\Category;
 class DashboardController extends Controller
 {
-    public function summary(Request $request)
+     public function index()
     {
-        // Filter by user or group if provided
-        $userId = $request->query('user_id');
-        $groupId = $request->query('group_id');
+        $user = Auth::user();
 
-        $query = Expense::query();
+        $totalUsers = 1; // Since this dashboard is per user
+        $totalExpenses = Expense::where('user_id', $user->id)->sum('amount');
+        $totalGroups = Group::where('created_by', $user->id)->count();
+        $totalSplits = Split::where('user_id', $user->id)->count();
 
-        if ($userId) {
-            $query->where('user_id', $userId);
-        }
+        $monthlyExpenses = Expense::where('user_id', $user->id)
+            ->where('expense_date', '>=', now()->subMonths(6))
+            ->selectRaw('DATE_FORMAT(expense_date, "%b %Y") as month, SUM(amount) as total')
+            ->groupBy('month')
+            ->orderByRaw('MIN(expense_date)')
+            ->pluck('total', 'month')
+            ->toArray();
 
-        if ($groupId) {
-            $query->where('group_id', $groupId);
-        }
+        $expenseTrendLabels = array_keys($monthlyExpenses);
+        $expenseTrendData = array_values($monthlyExpenses);
 
-        // Summary stats
-        $totalExpenses = $query->sum('amount');
-        $expenseCount = $query->count();
+        $categoryData = Expense::where('user_id', $user->id)
+            ->selectRaw('category, SUM(amount) as total')
+            ->groupBy('category')
+            ->pluck('total', 'category')
+            ->toArray();
 
-        // Category-wise breakdown
-        $categoryBreakdown = $query->select('category', DB::raw('SUM(amount) as total'))
-                                   ->groupBy('category')
-                                   ->get();
-
-        // Monthly trend
-        $monthly = $query->select(
-                        DB::raw("DATE_FORMAT(expense_date, '%Y-%m') as month"),
-                        DB::raw('SUM(amount) as total')
-                    )
-                    ->groupBy('month')
-                    ->orderBy('month', 'asc')
-                    ->get();
+        $categoryLabels = array_keys($categoryData);
+        $categoryTotals = array_values($categoryData);
 
         return response()->json([
-            'total_expenses' => $totalExpenses,
-            'expense_count' => $expenseCount,
-            'category_breakdown' => $categoryBreakdown,
-            'monthly_trend' => $monthly,
+            'success' => true,
+            'data' => [
+                'totalUsers' => $totalUsers,
+                'totalExpenses' => $totalExpenses,
+                'totalGroups' => $totalGroups,
+                'totalSplits' => $totalSplits,
+                'monthlyExpenses' => $monthlyExpenses,
+                'expenseTrendLabels' => $expenseTrendLabels,
+                'expenseTrendData' => $expenseTrendData,
+                'categoryLabels' => $categoryLabels,
+                'categoryTotals' => $categoryTotals,
+            ],
         ]);
     }
 }

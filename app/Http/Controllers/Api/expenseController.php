@@ -1,190 +1,212 @@
 <?php
 
+// namespace App\Http\Controllers\Api;
+
+// use App\Http\Controllers\Controller;
+// use App\Models\Expense;
+// use Illuminate\Http\Request;
+// use Illuminate\Support\Facades\Auth;
+
+// class ExpenseController extends Controller
+// {
+//     // List all expenses for logged-in user
+//     public function index()
+//     {
+//         $expenses = Expense::where('user_id', Auth::id())->get();
+//         return response()->json($expenses);
+//     }
+
+//     // Store a new expense
+//     public function store(Request $request)
+//     {
+//         $request->validate([
+//             'group_id' => 'required|exists:groups,id',
+//             'description' => 'nullable|string',
+//             'amount' => 'required|numeric|min:0',
+//             'expense_date' => 'required|date',
+//             'category' => 'nullable|string',
+//             'status' => 'nullable|string',
+//             'notes' => 'nullable|string',
+//         ]);
+
+//         $expense = Expense::create([
+//             'user_id' => Auth::id(),
+//             'group_id' => $request->group_id,
+//             'description' => $request->description,
+//             'amount' => $request->amount,
+//             'expense_date' => $request->expense_date,
+//             'category' => $request->category,
+//             'status' => $request->status,
+//             'notes' => $request->notes,
+//         ]);
+
+//         return response()->json($expense, 201);
+//     }
+
+//     // Show single expense
+//     public function show($id)
+//     {
+//         $expense = Expense::where('id', $id)->where('user_id', Auth::id())->firstOrFail();
+//         return response()->json($expense);
+//     }
+
+//     // Update expense
+//     public function update(Request $request, $id)
+//     {
+//         $expense = Expense::where('id', $id)->where('user_id', Auth::id())->firstOrFail();
+
+//         $request->validate([
+//             'group_id' => 'sometimes|exists:groups,id',
+//             'description' => 'nullable|string',
+//             'amount' => 'sometimes|numeric|min:0',
+//             'expense_date' => 'sometimes|date',
+//             'category' => 'nullable|string',
+//             'status' => 'nullable|string',
+//             'notes' => 'nullable|string',
+//         ]);
+
+//         $expense->update($request->only([
+//             'group_id', 'description', 'amount', 'expense_date', 'category', 'status', 'notes'
+//         ]));
+
+//         return response()->json($expense);
+//     }
+
+//     // Delete expense
+//     public function destroy($id)
+//     {
+//         $expense = Expense::where('id', $id)->where('user_id', Auth::id())->firstOrFail();
+//         $expense->delete();
+//         return response()->json(null, 204);
+//     }
+// }
  
 
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use App\Models\Expense;
-use Illuminate\Support\Facades\Validator;
+use App\Models\Group;
 
 class ExpenseController extends Controller
 {
-    // ✅ Get all expenses for authenticated user
+    // User ke expenses list karo
     public function index()
     {
-        $expenses = Expense::where('user_id', auth()->id())->get();
+        $user = Auth::user();
+
+        $expenses = Expense::where('user_id', $user->id)
+            ->with('group')
+            ->latest()
+            ->get();
 
         return response()->json([
-            'status' => true,
-            'message' => 'Expenses fetched successfully.',
-            'data' => $expenses
+            'success' => true,
+            'expenses' => $expenses,
         ]);
     }
 
-    // ✅ Store new expense
-    // public function store(Request $request)
-    // {
-    //     $validator = Validator::make($request->all(), [
-    //         'group_id' => 'required|exists:groups,id',
-    //         'description' => 'required|string',
-    //         'amount' => 'required|numeric',
-    //         'expense_date' => 'required|date',
-    //         'category' => 'nullable|string',
-    //         'status' => 'nullable|string',
-    //         'notes' => 'nullable|string',
-    //     ]);
+    // Groups jisme user member hai (dropdown ke liye)
+    public function groups()
+    {
+        $user = Auth::user();
+        $groups = $user->groups()->get();
 
-    //     if ($validator->fails()) {
-    //         return response()->json(['status' => false, 'errors' => $validator->errors()], 422);
-    //     }
+        return response()->json([
+            'success' => true,
+            'groups' => $groups,
+        ]);
+    }
 
-    //     $expense = Expense::create([
-    //         'user_id' => auth()->id(),
-    //         'group_id' => $request->group_id,
-    //         'description' => $request->description,
-    //         'amount' => $request->amount,
-    //         'expense_date' => $request->expense_date,
-    //         'category' => $request->category,
-    //         'status' => $request->status ?? 'pending',
-    //         'notes' => $request->notes,
-    //     ]);
+    // Naya expense create karo
+    public function store(Request $request)
+    {
+        $request->validate([
+            'description' => 'required|string|max:255',
+            'amount' => 'required|numeric|min:0',
+            'expense_date' => 'required|date',
+            'category' => 'required|string|max:100',
+            'group_id' => 'nullable|exists:groups,id',
+            'notes' => 'nullable|string|max:500',
+        ]);
 
-    //     return response()->json([
-    //         'status' => true,
-    //         'message' => 'Expense created successfully.',
-    //         'data' => $expense
-    //     ], 201);
-    // }
+        // Budget check agar group select hua ho
+        if ($request->group_id) {
+            $group = Group::with('expenses')->findOrFail($request->group_id);
+            $totalSpent = $group->expenses()->sum('amount');
+            $budgetLeft = max($group->budget - $totalSpent, 0);
 
-   
+            if ($request->amount > $budgetLeft) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Expense amount exceeds the remaining group budget.'
+                ], 422);
+            }
+        }
 
-public function store(Request $request)
-{
-    $request->validate([
-        'group_id' => 'required|exists:groups,id',
-        'description' => 'required|string',
-        'amount' => 'required|numeric|min:0',
-        'expense_date' => 'required|date',
-        'category' => 'nullable|string',
-        'notes' => 'nullable|string',
-    ]);
-
-    DB::beginTransaction();
-
-    try {
-        // Create the expense
+        // Expense create karo
         $expense = Expense::create([
-            'user_id' => auth()->id(),
+            'user_id' => Auth::id(),
             'group_id' => $request->group_id,
             'description' => $request->description,
             'amount' => $request->amount,
             'expense_date' => $request->expense_date,
             'category' => $request->category,
-            'status' => 'active', // or default
+            'status' => 'pending',
             'notes' => $request->notes,
         ]);
 
-        // Get group members (including creator)
-        $groupMembers = DB::table('group_user')
-            ->where('group_id', $request->group_id)
-            ->pluck('user_id')
-            ->toArray();
+        // Agar group expense hai to split logic
+        if ($request->group_id) {
+            $group = Group::with('users')->find($request->group_id);
+            $members = $group->users;
 
-        // Split amount
-        $splitAmount = round($request->amount / count($groupMembers), 2);
+            $splitAmount = round($request->amount / $members->count(), 2);
 
-        foreach ($groupMembers as $memberId) {
-            $type = $memberId == auth()->id() ? 'lent' : 'owed';
+            foreach ($members as $member) {
+                if ($member->id == Auth::id()) {
+                    $member->lent_total += $request->amount - $splitAmount;
 
-            // Insert split
-            DB::table('splits')->insert([
-                'expense_id' => $expense->id,
-                'user_id' => $memberId,
-                'amount' => $splitAmount,
-                'type' => $type,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ]);
+                    \App\Models\Split::create([
+                        'user_id' => $member->id,
+                        'expense_id' => $expense->id,
+                        'amount' => $request->amount - $splitAmount,
+                        'type' => 'lent',
+                    ]);
+                } else {
+                    $member->owed_total += $splitAmount;
 
-            // Update totals
-            if ($type === 'lent') {
-                DB::table('users')->where('id', $memberId)->increment('lent_total', $splitAmount);
-            } else {
-                DB::table('users')->where('id', $memberId)->increment('owed_total', $splitAmount);
+                    \App\Models\Split::create([
+                        'user_id' => $member->id,
+                        'expense_id' => $expense->id,
+                        'amount' => $splitAmount,
+                        'type' => 'owed',
+                    ]);
+                }
+                $member->save();
             }
         }
 
-        DB::commit();
-
-        return response()->json(['message' => 'Expense created and split successfully.'], 201);
-    } catch (\Exception $e) {
-        DB::rollback();
-        return response()->json(['error' => 'Failed to create expense.'], 500);
-    }
-}
-
-    public function show($id)
-    {
-        $expense = Expense::where('user_id', auth()->id())->find($id);
-
-        if (!$expense) {
-            return response()->json(['status' => false, 'message' => 'Expense not found.'], 404);
-        }
-
         return response()->json([
-            'status' => true,
-            'data' => $expense
+            'success' => true,
+            'message' => 'Expense added and split successfully.',
+            'expense' => $expense,
         ]);
     }
 
-    // ✅ Update expense
-    public function update(Request $request, $id)
+    // Specific group ka budget remaining lao
+    public function getBudgetLeft($groupId)
     {
-        $expense = Expense::where('user_id', auth()->id())->find($id);
-
-        if (!$expense) {
-            return response()->json(['status' => false, 'message' => 'Expense not found.'], 404);
+        $group = Group::find($groupId);
+        if (!$group) {
+            return response()->json(['budgetLeft' => 0]);
         }
 
-        $validator = Validator::make($request->all(), [
-            'group_id' => 'sometimes|exists:groups,id',
-            'description' => 'sometimes|string',
-            'amount' => 'sometimes|numeric',
-            'expense_date' => 'sometimes|date',
-            'category' => 'nullable|string',
-            'status' => 'nullable|string',
-            'notes' => 'nullable|string',
-        ]);
+        $totalSpent = $group->expenses()->sum('amount');
+        $budgetLeft = max($group->budget - $totalSpent, 0);
 
-        if ($validator->fails()) {
-            return response()->json(['status' => false, 'errors' => $validator->errors()], 422);
-        }
-
-        $expense->update($request->all());
-
-        return response()->json([
-            'status' => true,
-            'message' => 'Expense updated successfully.',
-            'data' => $expense
-        ]);
-    }
-
-    // ✅ Delete expense
-    public function destroy($id)
-    {
-        $expense = Expense::where('user_id', auth()->id())->find($id);
-
-        if (!$expense) {
-            return response()->json(['status' => false, 'message' => 'Expense not found.'], 404);
-        }
-
-        $expense->delete();
-
-        return response()->json([
-            'status' => true,
-            'message' => 'Expense deleted successfully.'
-        ]);
+        return response()->json(['budgetLeft' => $budgetLeft]);
     }
 }

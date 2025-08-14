@@ -125,7 +125,7 @@
                 <textarea name="notes" class="form-control" rows="3"></textarea>
             </div>
 
-            <button type="submit" class="btn btn-success w-100">💾 Save Expense</button>
+            <button type="submit" class="btn btn-success w-100"> Save Expense</button>
         </form>
     </div>
 </div>

@@ -64,14 +64,28 @@
 
         <div class="mb-3">
           <label for="created_by" class="form-label">Created By</label>
-         <select class="form-select" name="created_by" id="created_by" required>
-  @foreach ($users as $user)
-    @if ($user->role != 'admin')
-      <option value="{{ $user->id }}">{{ $user->name }}</option>
-    @endif
-  @endforeach
-</select>
+          <select class="form-select" name="created_by" id="created_by" required>
+            @foreach ($users as $user)
+              @if ($user->role != 'admin')
+                <option value="{{ $user->id }}">{{ $user->name }}</option>
+              @endif
+            @endforeach
+          </select>
+        </div>
 
+        <!-- New: Budget -->
+        <div class="mb-3">
+          <label for="budget" class="form-label">Budget (₹)</label>
+          <input type="number" class="form-control" name="budget" id="budget" step="0.01" min="0" placeholder="0">
+        </div>
+
+        <!-- New: Permanent -->
+        <div class="mb-3">
+          <label for="is_permanent" class="form-label">Permanent</label>
+          <select class="form-select" name="is_permanent" id="is_permanent">
+            <option value="0" selected>No</option>
+            <option value="1">Yes</option>
+          </select>
         </div>
 
         <button type="submit" class="btn btn-primary w-100">Save Group</button>

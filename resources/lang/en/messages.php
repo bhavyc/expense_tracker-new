@@ -16,12 +16,13 @@ return [
     'Expense Trend' => 'Expense Trend',
     'Category Breakdown' => 'Category Breakdown',
     'Admin Panel' => 'Admin Panel',
-
-
+ 'feedback_query' => 'Feedback / Query',
+    'my_feedbacks' => 'My Feedbacks',
+    'feedbacks'=> 'Feedbacks',
  
     'analytics' => 'Analytics',
     'expenses' => 'Expenses',
-    'groups' => 'Groups',
+    'groups' => 'Group Expenses',
     'group_members' => 'Group Members',
     'reports' => 'Reports',
     'logout' => 'Logout',

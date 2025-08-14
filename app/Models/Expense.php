@@ -21,7 +21,14 @@ class Expense extends Model
         'notes',
     ];
 
-    // ✅ Relationship: Expense belongs to a User
+    //  Relationship: Expense belongs to a User
+
+    // App\Models\Expense.php
+public function getExpenseTypeAttribute()
+{
+    return $this->group_id ? 'group' : 'personal';
+}
+
     public function user()
     {
         return $this->belongsTo(User::class);
@@ -51,6 +58,16 @@ public function category()
 {
     return $this->belongsTo(Category::class);
 }
+  // Personal expenses → group_id NULL
+    public function scopePersonal($query)
+    {
+        return $query->whereNull('group_id');
+    }
 
+    // Group expenses → group_id NOT NULL
+    public function scopeGroup($query)
+    {
+        return $query->whereNotNull('group_id');
+    }
 
 }

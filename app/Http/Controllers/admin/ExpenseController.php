@@ -52,9 +52,9 @@ $members = $group->users;
 $split_amount = round($request->amount / $members->count());
 
 foreach($members as $member){
-    // Type-safe comparison to ensure it works
+    
     if((int)$member->id === (int)$request->user_id){
-        // This user created the expense → lent = total - own share
+       
         $member->lent_total += $request->amount - $split_amount;
 
         Split::create([
@@ -64,7 +64,7 @@ foreach($members as $member){
             'type' => 'lent',
         ]);
     } else {
-        // Other users → owed = share amount
+        
         $member->owed_total += $split_amount;
 
         Split::create([
@@ -75,7 +75,7 @@ foreach($members as $member){
         ]);
     }
 
-    // Save updated totals to DB
+     
     $member->save();
 }
 
@@ -115,7 +115,7 @@ foreach($members as $member){
 {
     $expense = Expense::with('splits.user')->findOrFail($id);
 
-    // Optional: reverse the splits (reduce lent/owed totals if you're maintaining them)
+    
     foreach ($expense->splits as $split) {
         $user = $split->user;
         if ($split->type == 'lent') {
@@ -126,8 +126,8 @@ foreach($members as $member){
         $user->save();
     }
 
-    $expense->splits()->delete(); // delete splits
-    $expense->delete(); // delete the expense
+    $expense->splits()->delete();  
+    $expense->delete();  
 
     return redirect()->route('admin.expenses.index')->with('success', 'Expense deleted successfully.');
 }

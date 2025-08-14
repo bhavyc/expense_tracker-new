@@ -37,7 +37,7 @@ class adminUserController extends Controller
             'email' => $request->email,
         ]);
 
-        return redirect()->route('admin.users.show', $user->id)->with('success', 'User updated successfully.');
+        return redirect()->route('admin.dashboard', $user->id)->with('success', 'User updated successfully.');
     }
 
      

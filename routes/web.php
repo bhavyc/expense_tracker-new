@@ -18,7 +18,10 @@ use App\Http\Controllers\reportController;
 use App\Http\Controllers\expenseController as eController;
 use App\Http\Controllers\userController;
 use App\Http\Controllers\groupController as grController ;
- 
+use  App\Http\Controllers\FeedbackController as fController;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Password;
+
 Route::get('/', function () {
     return redirect('/admin/login');
 });
@@ -27,13 +30,72 @@ Route::get('/admin/register', [AdminRegisterController::class, 'showForm'])->nam
 Route::post('/admin/register', [AdminRegisterController::class, 'register']);
  
 Route::group(['prefix' => 'account'], function () {
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
      Route::group(['middleware' => 'guest'], function () {
         Route::get('/login', [loginController::class, 'index'])->name('account.login');
     Route::post('/authenticate', [loginController::class, 'authenticate'])->name('account.authenticate');  
     Route::get('/register', [loginController::class, 'register'])->name('account.register');
     Route::post('/registerUser', [loginController::class, 'registerUser'])->name('account.registerUser');
     });
+    
+    // Email form show karega
+Route::get('/forgot-password', function () {
+    return view('auth.forgot-password'); // email form
+})->name('password.request');
 
+// Email pe reset link bhejne ka kaam karega
+Route::post('/forgot-password', function (Request $request) {
+    $request->validate(['email' => 'required|email']);
+
+    $status = Password::sendResetLink($request->only('email'));
+
+    return $status === Password::RESET_LINK_SENT
+        ? back()->with(['status' => __($status)])
+        : back()->withErrors(['email' => __($status)]);
+})->name('password.email');
+
+// Link click hone ke baad reset form show karega
+Route::get('/reset-password/{token}', function ($token) {
+    return view('auth.reset-password', ['token' => $token]);
+})->name('password.reset');
+
+// Naya password save karega
+Route::post('/reset-password', function (Request $request) {
+    $request->validate([
+        'token' => 'required',
+        'email' => 'required|email',
+        'password' => 'required|min:6|confirmed',
+    ]);
+
+    $status = Password::reset(
+        $request->only('email', 'password', 'password_confirmation', 'token'),
+        function ($user, $password) {
+            $user->forceFill([
+                'password' => bcrypt($password)
+            ])->save();
+        }
+    );
+
+    return $status === Password::PASSWORD_RESET
+        ? redirect()->route('account.login')->with('status', __($status))
+        : back()->withErrors(['email' => [__($status)]]);
+})->name('password.update');
+ Route::get('/group-budget-left/{groupId}', [eController::class, 'getBudgetLeft'])->name('group.budget-left');
     Route::group(['middleware' => 'auth'], function () {
         Route::get('/dashboard', [dashboardController::class, 'index'])->name('account.dashboard');
         Route::get('/logout', [loginController::class, 'logout'])->name('account.logout');
@@ -41,8 +103,16 @@ Route::group(['prefix' => 'account'], function () {
          Route::get('/expenses', [eController::class, 'index'])->name('user.expenses.index');
     Route::get('/expenses/create', [eController::class, 'create'])->name('user.expenses.create');
     Route::post('/expenses', [eController::class, 'store'])->name('user.expenses.store');
-
+     Route::get('/feedback', function () {
+        return view('user.feedbacks.form');  // The form page
+    })->name('feedback.form');
+ Route::post('/feedback', [fController::class, 'store'])->name('feedback.store');
     Route::get('user/groups', [grController::class, 'index'])->name('user.groups.index');
+Route::post('/user/groups', [grController::class, 'store'])->name('user.groups.store');
+ // routes/web.php (auth middleware के अंदर)
+Route::post('/user/groups/{groupId}/members', [grController::class, 'addMember'])
+    ->name('user.groups.members.add');
+
 
 // Show create form
 Route::get('user/groups/create', function () {
@@ -61,7 +131,20 @@ Route::put('user/groups/{id}', [grController::class, 'update'])->name('user.grou
 // Delete group
 Route::delete('user/groups/{id}', [grController::class, 'destroy'])->name('user.groups.destroy');
 
+// routes/web.php
+Route::get('/weekly-expenses/{id}', [grController::class, 'weeklyExpenses'])
+    ->name('group.weekly-expenses');
+
+Route::patch('/groups/{id}/budget', [grController::class, 'updateBudget'])
+    ->name('user.groups.updateBudget');
+
+
 });
+
+ Route::middleware('auth')->get('/my-feedbacks', function () {
+    $feedbacks = \App\Models\Feedback::where('user_id', auth()->id())->latest()->get();
+    return view('user.feedbacks.my_feedbacks', compact('feedbacks'));
+})->name('feedback.my');  
 
  
 
@@ -76,8 +159,9 @@ Route::group(['prefix' => 'admin'], function () {
          Route::get('login', [AdminLoginController::class, 'index'])->name('admin.login');
  
 Route::post(' authenticate', [AdminLoginController::class, 'authenticate'])->name('admin.authenticate');
- 
+   
     });
+    
 
     Route::group(['middleware' => 'admin.auth'], function () {
        Route::get('dashboard', [AdminDashboardController::class, 'index'])->name('admin.dashboard');
@@ -130,6 +214,11 @@ Route::get('/admin/group-members/{groupId}', [GroupController::class, 'getGroupM
     Route::get('/apis', function () {
     return view('admin.apis');
 })->name('admin.apis');
+
+
+Route::get('/feedbacks', [fController::class, 'index'])->name('admin.feedbacks.index');
+    Route::post('/feedbacks/{id}/reply', [fController::class, 'reply'])->name('admin.feedbacks.reply');
+
 }); 
 
 //  Route::get('/change-language', function () {
@@ -171,4 +260,7 @@ Route::get('/test-mail', function () {
 
  
 
+ // routes/web.php
+
+// For users
  
