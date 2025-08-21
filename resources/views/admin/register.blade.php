@@ -79,15 +79,7 @@
   <div class="glass-card">
     <h4 class="text-center mb-4 fw-semibold">📝 Admin Registration</h4>
 
-    @if ($errors->any())
-      <div class="alert alert-danger error-alert">
-        <ul class="mb-0">
-          @foreach ($errors->all() as $error)
-            <li>{{ $error }}</li>
-          @endforeach
-        </ul>
-      </div>
-    @endif
+   
 
     <form method="POST" action="{{ route('admin.register') }}" class="mt-4">
       @csrf

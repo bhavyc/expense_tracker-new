@@ -169,8 +169,51 @@ public function index()
         ]);
     }
 
+public function analytics($groupId)
+{
+    // Fetch the group along with its users
+    $group = Group::with('users')->findOrFail($groupId);
 
-    // App\Http\Controllers\groupController.php
+    // Check if the current user is a member of the group
+    if (!$group->users->contains(auth()->id())) {
+        abort(403, 'Unauthorized');
+    }
+
+    // Weekly Expenses
+    $weeklyExpenses = Expense::selectRaw('YEAR(expense_date) as year, WEEK(expense_date, 1) as week, SUM(amount) as total')
+        ->where('group_id', $groupId)
+        ->groupBy('year', 'week')
+        ->orderBy('year')
+        ->orderBy('week')
+        ->get()
+        ->map(function ($item) {
+            
+            $startOfWeek = \Carbon\Carbon::now()->setISODate($item->year, $item->week)->startOfWeek();
+
+            // End of the week (Sunday)
+            $endOfWeek = \Carbon\Carbon::now()->setISODate($item->year, $item->week)->endOfWeek();
+
+            // If the end date is in the future, show today instead
+            if ($endOfWeek->isFuture()) {
+                $endOfWeek = \Carbon\Carbon::today();
+            }
+
+            // Format date range
+            $item->date_range = $startOfWeek->format('d M') . ' - ' . $endOfWeek->format('d M');
+
+            return $item;
+        });
+
+    // Category-wise Expenses
+    $categoryExpenses = Expense::selectRaw('category, SUM(amount) as total')
+        ->where('group_id', $groupId)
+        ->groupBy('category')
+        ->get();
+
+    // Return view with data
+    return view('user.groups.group-analytics', compact('group', 'weeklyExpenses', 'categoryExpenses'));
+}
+
 
 public function addMember(Request $request, $groupId)
 {
@@ -205,6 +248,89 @@ public function addMember(Request $request, $groupId)
 }
 
 
+ // Monthly Expenses
+    public function monthlyExpenses($groupId)
+    {
+        $group = Group::with('users')->findOrFail($groupId);
+
+        if (!$group->users->contains(auth()->id())) {
+            abort(403, 'Unauthorized');
+        }
+
+        $startDate = Carbon::now()->startOfMonth();
+        $endDate = Carbon::now()->endOfMonth();
+
+        $userExpenses = $group->users->map(function ($user) use ($groupId, $startDate, $endDate) {
+            $spent = $user->expenses()
+                ->where('group_id', $groupId)
+                ->whereBetween('expense_date', [$startDate, $endDate])
+                ->sum('amount');
+            return [
+                'name' => $user->name,
+                'spent' => $spent
+            ];
+        });
+
+        $totalSpent = $userExpenses->sum('spent');
+        $budgetLeft = max($group->budget - $totalSpent, 0);
+
+        return view('user.groups.monthly-expenses', compact('group', 'userExpenses', 'totalSpent', 'budgetLeft'));
+    }
+
+  public function getUsers($id)
+    {
+        $group = Group::with('users')->find($id);
+
+        if (!$group) {
+            return response()->json([]);
+        }
+
+        // JSON me sirf id aur name bhej rahe
+        $users = $group->users->map(function($user){
+            return [
+                'id' => $user->id,
+                'name' => $user->name
+            ];
+        });
+
+        return response()->json($users);
+    }
+    
+public function monthlyAnalytics($groupId)
+{
+    $group = Group::with('users')->findOrFail($groupId);
+
+    // User check
+    if (!$group->users->contains(auth()->id())) {
+        abort(403, 'Unauthorized');
+    }
+
+    $startOfMonth = Carbon::now()->startOfMonth();
+    $endOfMonth = Carbon::now()->endOfMonth();
+
+    // Weekly expenses for line chart
+    $weeklyExpenses = Expense::selectRaw('YEAR(expense_date) as year, WEEK(expense_date,1) as week, SUM(amount) as total')
+        ->where('group_id', $groupId)
+        ->whereBetween('expense_date', [$startOfMonth, $endOfMonth])
+        ->groupBy('year', 'week')
+        ->orderBy('week')
+        ->get()
+        ->map(function ($item) {
+            $startWeek = Carbon::now()->setISODate($item->year, $item->week)->startOfWeek();
+            $endWeek = Carbon::now()->setISODate($item->year, $item->week)->endOfWeek();
+            $item->label = $startWeek->format('d M') . ' - ' . $endWeek->format('d M');
+            return $item;
+        });
+
+    // Category-wise expenses for pie chart
+    $categoryExpenses = Expense::selectRaw('category, SUM(amount) as total')
+        ->where('group_id', $groupId)
+        ->whereBetween('expense_date', [$startOfMonth, $endOfMonth])
+        ->groupBy('category')
+        ->get();
+
+    return view('user.groups.monthly-analytics', compact('group', 'weeklyExpenses', 'categoryExpenses'));
+}
 }
 
  

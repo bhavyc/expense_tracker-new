@@ -6,6 +6,11 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Group;
 use App\Models\User;
+use App\Models\GroupMember;
+use App\Models\Expense;
+use App\Models\Split;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class groupController extends Controller
 {
@@ -79,4 +84,115 @@ class groupController extends Controller
 
         return redirect()->route('admin.groups.index')->with('success', 'Group deleted successfully.');
     }
+
+
+    
+public function weeklyAnalytics()
+{
+    $weeklyExpenses = DB::table('groups as g')
+        ->leftJoin('expenses as e', 'g.id', '=', 'e.group_id')
+        ->select(
+            'g.id as group_id',
+            'g.name as group_name',
+            DB::raw('YEARWEEK(e.expense_date, 1) as year_week'),
+            DB::raw('SUM(e.amount) as total_weekly_expense')
+        )
+        ->groupBy('g.id', 'g.name', DB::raw('YEARWEEK(e.expense_date, 1)'))
+        ->orderBy('g.id')
+        ->orderBy('year_week')
+        ->get();
+
+    return view('admin.groups.weekly_analytics', compact('weeklyExpenses'));
+}
+
+
+ public function analytics($id)
+{
+    $group = Group::findOrFail($id);
+
+    $weeklyExpenses = DB::table('expenses as e')
+        ->select(
+            DB::raw('YEARWEEK(e.expense_date, 1) as year_week'),
+            DB::raw('MIN(e.expense_date) as start_date'),
+            DB::raw('MAX(e.expense_date) as end_date'),
+            DB::raw('SUM(e.amount) as total_weekly_expense')
+        )
+        ->where('e.group_id', $id)
+        ->groupBy(DB::raw('YEARWEEK(e.expense_date, 1)'))
+        ->orderBy('year_week')
+        ->get();
+
+    return view('admin.groups.analytics', compact('group', 'weeklyExpenses'));
+}
+
+
+public function userWeeklyExpenses($id)
+{
+    $group = Group::findOrFail($id);
+
+    $weeklyExpenses = DB::table('expenses as e')
+        ->join('users as u', 'e.user_id', '=', 'u.id')
+        ->select(
+            'u.name as user_name',
+            DB::raw('YEARWEEK(e.expense_date, 1) as year_week'),
+            DB::raw('SUM(e.amount) as total_weekly_expense')
+        )
+        ->where('e.group_id', $id)
+        ->groupBy('u.name', DB::raw('YEARWEEK(e.expense_date, 1)'))
+        ->orderBy('year_week')
+        ->get();
+
+    return view('admin.groups.user_weekly_expenses', compact('group', 'weeklyExpenses'));
+}
+
+
+ public function monthlyGroupExpenses()
+    {
+        // Saare groups fetch karenge
+        $groups = Group::all();
+
+        $data = [];
+
+        foreach ($groups as $group) {
+            $monthlyData = Expense::where('group_id', $group->id)
+                ->selectRaw('MONTH(expense_date) as month, SUM(amount) as total')
+                ->groupBy('month')
+                ->pluck('total', 'month')
+                ->toArray();
+
+            $categoryData = Expense::where('group_id', $group->id)
+                ->selectRaw('category, SUM(amount) as total')
+                ->groupBy('category')
+                ->pluck('total', 'category')
+                ->toArray();
+
+            $data[$group->id] = [
+                'group' => $group,
+                'monthly' => $monthlyData,
+                'categories' => $categoryData,
+            ];
+        }
+
+        return view('admin.groups.monthly_analytics', compact('data'));
+    }
+
+    public function monthlyAnalytics($id)
+{
+    $group = Group::findOrFail($id);
+
+    $monthlyExpenses = DB::table('expenses as e')
+        ->select(
+            DB::raw('MONTH(e.expense_date) as month'),
+            DB::raw('YEAR(e.expense_date) as year'),
+            DB::raw('SUM(e.amount) as total_monthly_expense')
+        )
+        ->where('e.group_id', $id)
+        ->groupBy(DB::raw('YEAR(e.expense_date)'), DB::raw('MONTH(e.expense_date)'))
+        ->orderBy('year')
+        ->orderBy('month')
+        ->get();
+
+    return view('admin.groups.monthly-analytics', compact('group', 'monthlyExpenses'));
+}
+
 }

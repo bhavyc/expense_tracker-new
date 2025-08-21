@@ -96,10 +96,11 @@ Route::post('/reset-password', function (Request $request) {
         : back()->withErrors(['email' => [__($status)]]);
 })->name('password.update');
  Route::get('/group-budget-left/{groupId}', [eController::class, 'getBudgetLeft'])->name('group.budget-left');
+
     Route::group(['middleware' => 'auth'], function () {
         Route::get('/dashboard', [dashboardController::class, 'index'])->name('account.dashboard');
         Route::get('/logout', [loginController::class, 'logout'])->name('account.logout');
-       Route::get('/index', [userController::class, 'index'])->name('account.index');
+        Route::get('/index', [userController::class, 'index'])->name('account.index');
          Route::get('/expenses', [eController::class, 'index'])->name('user.expenses.index');
     Route::get('/expenses/create', [eController::class, 'create'])->name('user.expenses.create');
     Route::post('/expenses', [eController::class, 'store'])->name('user.expenses.store');
@@ -113,7 +114,7 @@ Route::post('/user/groups', [grController::class, 'store'])->name('user.groups.s
 Route::post('/user/groups/{groupId}/members', [grController::class, 'addMember'])
     ->name('user.groups.members.add');
 
-
+Route::get('/group/{id}/users', [grController::class, 'getUsers']);
 // Show create form
 Route::get('user/groups/create', function () {
     return view('user.groups.create');
@@ -121,6 +122,12 @@ Route::get('user/groups/create', function () {
 
 // Handle create form submission
 Route::post('user/groups/create', [grController::class, 'create'])->name('user.groups.create');
+
+
+Route::get('/groups/{group}/analytics', [grController::class, 'analytics'])
+     ->name('user.groups.analytics');
+// monthly analytics
+Route::get('groups/{group}/monthly-analytics', [grController::class, 'monthlyAnalytics'])->name('groups.monthlyAnalytics');
 
 // Show edit form
 Route::get('user/groups/{id}/edit', [grController::class, 'edit'])->name('user.groups.edit');
@@ -182,10 +189,16 @@ Route::post(' authenticate', [AdminLoginController::class, 'authenticate'])->nam
 
 // split ka route
  Route::resource('splits', SplitController::class)->names('admin.splits');
-    
+   Route::get('/get-groups-users/{id}', [ExpenseController::class, 'getUsersByGroup']);
+ 
 
 //  categories
 Route::resource('categories', categoriesController::class)->names('admin.categories');
+
+Route::get('/groups/{id}/weekly-expenses', [groupController::class, 'userWeeklyExpenses'])
+     ->name('admin.groups.user_weekly_expenses');
+Route::get('/groups/{id}/analytics', [groupController::class, 'analytics'])->name('admin.groups.analytics');
+Route::get('/groups/{id}/monthly-analytics', [groupController::class, 'monthlyAnalytics'])->name('admin.groups.monthly_analytics');
 
 
 // Analytics
@@ -200,8 +213,12 @@ Route::resource('categories', categoriesController::class)->names('admin.categor
   Route::get('/reports', [reportController::class, 'index'])->name('reports.index');
 Route::get('/reports/export/pdf', [reportController::class, 'exportPdf'])->name('reports.export.pdf');
 Route::get('/reports/export/csv', [reportController::class, 'exportCsv'])->name('reports.export.csv');
-Route::get('/admin/group-members/{groupId}', [GroupController::class, 'getGroupMembers']);
+// Route::get('/group-members/{groupId}', [groupController::class, 'getGroupMembers']);
 
+// web.php
+Route::get('/get-users-by-group/{id}', [ExpenseController::class, 'getUsersByGroup']);
+Route::get('/get-groups-by-user/{id}', [ExpenseController::class, 'getGroupsByUser']);
+ 
 
   
   Route::get('/users/{id}/edit', [adminUserController::class, 'edit'])->name('admin.users.edit');

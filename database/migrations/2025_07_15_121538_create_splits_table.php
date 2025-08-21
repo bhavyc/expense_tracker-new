@@ -17,6 +17,7 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
             $table->decimal('amount', 10, 2);
             $table->enum('type', ['lent', 'owed']) ;// Type of split: lent (user lent money) or owned (user owes money)
+            
             $table->timestamps();
         });
     }

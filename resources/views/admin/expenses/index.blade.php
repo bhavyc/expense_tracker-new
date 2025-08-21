@@ -144,7 +144,7 @@
               @endif
             </td>
             <td>
-              <a href="{{ route('admin.expenses.edit', $expense->id) }}" class="btn btn-sm btn-outline-primary mb-1">Edit</a>
+              <!-- <a href="{{ route('admin.expenses.edit', $expense->id) }}" class="btn btn-sm btn-outline-primary mb-1">Edit</a> -->
               <form action="{{ route('admin.expenses.destroy', $expense->id) }}" method="POST" class="d-inline">
                 @csrf
                 @method('DELETE')

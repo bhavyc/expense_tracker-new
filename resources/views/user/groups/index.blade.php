@@ -24,7 +24,7 @@
             align-items: center;
             margin-bottom: 20px;
         }
-        .group-actions { display: flex; gap: 10px; }
+        .group-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px; }
         .budget-info { margin-top: 10px; font-weight: 600; }
         .budget-left { color: green; }
         .budget-over { color: red; }
@@ -59,7 +59,7 @@
         @endphp
 
         <div class="card mb-3 shadow-sm">
-            <div class="d-flex justify-content-between align-items-center">
+            <div class="d-flex justify-content-between align-items-start">
                 <div>
                     <h5 class="mb-1">
                         {{ $group->name }}
@@ -68,7 +68,6 @@
                         @endif
                     </h5>
                     <p class="text-muted mb-1">{{ $group->description }}</p>
-                    <small class="text-secondary">Created on: {{ $group->created_at->format('d M Y') }}</small>
 
                     <div class="budget-info mt-2">
                         @if($group->created_by === auth()->id())
@@ -98,6 +97,10 @@
                 </div>
 
                 <div class="group-actions">
+                    <!-- Weekly & Monthly Analytics Buttons -->
+                    <a href="{{ route('user.groups.analytics', $group->id) }}" class="btn btn-success btn-sm btn-animated">Weekly</a>
+                    <a href="{{ route('groups.monthlyAnalytics', $group->id) }}" class="btn btn-info btn-sm btn-animated">Monthly</a>
+
                     <a href="{{ route('user.groups.edit', $group->id) }}" class="btn btn-primary btn-sm btn-animated">Edit</a>
                     <form action="{{ route('user.groups.destroy', $group->id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this group?');" style="display:inline;">
                         @csrf

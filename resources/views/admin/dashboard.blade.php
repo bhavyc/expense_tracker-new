@@ -144,7 +144,7 @@
   <a href="/admin/group-members"><i class="bi bi-person-lines-fill"></i> @lang('messages.Group Members')</a>
   <a href="{{ route('reports.index') }}"><i class="bi bi-file-earmark-text"></i> @lang('messages.Reports')</a>
   <a href="/admin/apis"><i class="bi bi-code-slash"></i> @lang('messages.APIs')</a>
-  <a href="/admin/feedbacks"><i class="bi bi-code-slash"></i> @lang('messages.feedbacks')</a>
+  <!-- <a href="/admin/feedbacks"><i class="bi bi-code-slash"></i> @lang('messages.feedbacks')</a> -->
  <form method="GET" action="{{ route('change.language') }}">
     <select name="lang" onchange="this.form.submit()">
         <option value="en" {{ app()->getLocale() === 'en' ? 'selected' : '' }}>English</option>

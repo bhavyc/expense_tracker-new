@@ -70,4 +70,29 @@ public function category()
         return $query->whereNotNull('group_id');
     }
 
+
+      // ✅ Deleting event to update user totals
+    protected static function booted()
+    {
+        static::deleting(function ($expense) {
+
+            foreach ($expense->splits as $split) {
+                $user = $split->user;
+                if (!$user) continue;
+
+                if ($split->type === 'lent') {
+                    $user->lent_total -= $split->amount;
+                    if ($user->lent_total < 0) $user->lent_total = 0;
+                } else {
+                    $user->owed_total -= $split->amount;
+                    if ($user->owed_total < 0) $user->owed_total = 0;
+                }
+                $user->save();
+            }
+
+            // Delete all splits
+            $expense->splits()->delete();
+        });
+    }
+
 }

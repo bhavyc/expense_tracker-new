@@ -11,6 +11,8 @@ class Split extends Model
         'user_id',
         'amount',
         'type',
+        'method',   
+    'value'  
     ];
 
     public function expense()

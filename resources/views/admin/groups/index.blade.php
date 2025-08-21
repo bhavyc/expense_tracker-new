@@ -21,6 +21,7 @@
 
     .table th, .table td {
       vertical-align: middle;
+      text-align: center;
     }
 
     .table-hover tbody tr:hover {
@@ -77,6 +78,7 @@
             <th>Budget</th>
             <th>Permanent</th>
             <th>Created By</th>
+            <th>Analytics</th>
             <th>Actions</th>
           </tr>
         </thead>
@@ -101,8 +103,25 @@
               @endif
             </td>
             <td>{{ $group->creator->name ?? 'N/A' }}</td>
+
+            <!-- Analytics Column -->
             <td>
-              <a href="{{ route('admin.groups.edit', $group->id) }}" class="btn btn-outline-primary btn-sm">Edit</a>
+              <a href="{{ route('admin.groups.analytics', $group->id) }}" 
+                 class="btn btn-outline-info btn-sm">📊 View</a>
+
+              <!-- ✅ Naya Button Monthly Analytics ke liye -->
+              <a href="{{ route('admin.groups.monthly_analytics', $group->id) }}" 
+                 class="btn btn-outline-warning btn-sm mt-1">📈 Monthly</a>
+            </td> 
+
+            <!-- Actions Column -->
+            <td>
+              <a href="{{ route('admin.groups.edit', $group->id) }}" 
+                 class="btn btn-outline-primary btn-sm">Edit</a>
+
+              <a href="{{ route('admin.groups.user_weekly_expenses', $group->id) }}" 
+                 class="btn btn-outline-success btn-sm">Weekly Expenses</a> 
+
               <form action="{{ route('admin.groups.destroy', $group->id) }}" method="POST" class="d-inline">
                 @csrf
                 @method('DELETE')
@@ -114,7 +133,7 @@
 
           @if ($groups->isEmpty())
             <tr>
-              <td colspan="7" class="text-center text-muted">No groups found.</td>
+              <td colspan="8" class="text-center text-muted">No groups found.</td>
             </tr>
           @endif
         </tbody>

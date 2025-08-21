@@ -4,86 +4,44 @@
     <meta charset="UTF-8">
     <title>Add Expense</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
     <style>
         body {
             background: linear-gradient(to right, #e0f7fa, #ffffff);
             font-family: 'Segoe UI', sans-serif;
         }
-
-        .card {
-            border: none;
-            border-radius: 20px;
-            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
-            transition: transform 0.3s ease;
-        }
-
-        .card:hover {
-            transform: scale(1.01);
-        }
-
-        label {
-            font-weight: 600;
-        }
-
-        .form-control, .form-select {
-            transition: all 0.2s ease-in-out;
-        }
-
-        .form-control:focus, .form-select:focus {
-            border-color: #00bfa5;
-            box-shadow: 0 0 0 0.2rem rgba(0, 191, 165, 0.25);
-        }
-
-        .btn-success {
-            background-color: #00bfa5;
-            border: none;
-        }
-
-        .btn-success:hover {
-            background-color: #009e88;
-        }
-
-        .top-actions {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .fade-in {
-            animation: fadeIn 0.6s ease-in-out;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+        .card { border: none; border-radius: 20px; box-shadow: 0 8px 16px rgba(0,0,0,0.1); }
+        .btn-success { background-color: #00bfa5; border: none; }
+        .btn-success:hover { background-color: #009e88; }
+        label { font-weight: 600; }
     </style>
 </head>
-<body class="p-4 bg-light fade-in">
+<body class="p-4 bg-light">
 
 <div class="container mt-4">
-    <div class="top-actions mb-3">
+    <div class="d-flex justify-content-between mb-3">
         <h2>Add New Expense</h2>
-        <a href="{{ route('admin.expenses.index') }}" class="btn btn-outline-secondary">← Back to Expenses</a>
+        <a href="{{ route('admin.expenses.index') }}" class="btn btn-outline-secondary">← Back</a>
     </div>
 
     <div class="card p-4">
         <form action="{{ route('admin.expenses.store') }}" method="POST">
             @csrf
 
+            <!-- User -->
             <div class="mb-3">
                 <label for="user_id" class="form-label">User</label>
                 <select name="user_id" id="user_id" class="form-select" required>
-    <option value="">Select User</option>
-    @foreach ($users as $user)
-        @if($user->role !== 'admin') {{--  Exclude admin users --}}
-            <option value="{{ $user->id }}">{{ $user->name }}</option>
-        @endif
-    @endforeach
-</select>
-
+                    <option value="">Select User</option>
+                    @foreach ($users as $user)
+                        @if($user->role !== 'admin')
+                            <option value="{{ $user->id }}">{{ $user->name }}</option>
+                        @endif
+                    @endforeach
+                </select>
             </div>
 
+            <!-- Group -->
             <div class="mb-3">
                 <label for="group_id" class="form-label">Group</label>
                 <select name="group_id" id="group_id" class="form-select">
@@ -91,28 +49,33 @@
                 </select>
             </div>
 
+            <!-- Description -->
             <div class="mb-3">
-                <label for="description" class="form-label">Description</label>
+                <label class="form-label">Description</label>
                 <input type="text" name="description" class="form-control" required>
             </div>
 
+            <!-- Amount -->
             <div class="mb-3">
-                <label for="amount" class="form-label">Amount</label>
+                <label class="form-label">Amount</label>
                 <input type="number" name="amount" class="form-control" required>
             </div>
 
+            <!-- Date -->
             <div class="mb-3">
-                <label for="expense_date" class="form-label">Expense Date</label>
+                <label class="form-label">Expense Date</label>
                 <input type="date" name="expense_date" class="form-control" required>
             </div>
 
+            <!-- Category -->
             <div class="mb-3">
-                <label for="category" class="form-label">Category</label>
-                <input type="text" name="category" class="form-control">
+                <label class="form-label">Category</label>
+                <input type="text" name="category" class="form-control" required>
             </div>
 
+            <!-- Status -->
             <div class="mb-3">
-                <label for="status" class="form-label">Status</label>
+                <label class="form-label">Status</label>
                 <select name="status" class="form-select">
                     <option value="pending">Pending</option>
                     <option value="approved">Approved</option>
@@ -120,17 +83,37 @@
                 </select>
             </div>
 
+            <!-- Notes -->
             <div class="mb-3">
-                <label for="notes" class="form-label">Notes</label>
+                <label class="form-label">Notes</label>
                 <textarea name="notes" class="form-control" rows="3"></textarea>
             </div>
 
-            <button type="submit" class="btn btn-success w-100"> Save Expense</button>
+            <!-- Split Method -->
+            <div class="mb-3">
+                <label for="method" class="form-label">Split Method</label>
+                <select name="method" id="method" class="form-select" required>
+                    <option value="">Select Method</option>
+                    <option value="equal">Equally</option>
+                    <option value="unequal">Unequally</option>
+                    <option value="shares">By Shares</option>
+                    <option value="percentage">By Percentage</option>
+                    <option value="adjustment">By Adjustment</option>
+                </select>
+            </div>
+
+            <!-- Members Splits -->
+            <div id="splits-container" class="mt-3"></div>
+
+            <button type="submit" class="btn btn-success w-100 mt-3">Save Expense</button>
         </form>
     </div>
 </div>
 
 <script>
+    let groupMembers = [];
+
+    // Fetch groups by selected user
     document.getElementById('user_id').addEventListener('change', function () {
         const userId = this.value;
         const groupSelect = document.getElementById('group_id');
@@ -140,17 +123,59 @@
             .then(res => res.json())
             .then(data => {
                 groupSelect.innerHTML = '<option value="">None</option>';
-                if (data.length === 0) {
-                    groupSelect.innerHTML += '<option disabled>No groups found</option>';
-                } else {
-                    data.forEach(group => {
-                        groupSelect.innerHTML += `<option value="${group.id}">${group.name}</option>`;
-                    });
-                }
+                data.forEach(group => {
+                    groupSelect.innerHTML += `<option value="${group.id}">${group.name}</option>`;
+                });
             })
             .catch(() => {
                 groupSelect.innerHTML = '<option disabled>Error loading groups</option>';
             });
+    });
+
+    // Fetch group members
+    document.getElementById('group_id').addEventListener('change', function () {
+        const groupId = this.value;
+        if (!groupId) return;
+
+        fetch(`/admin/get-users-by-group/${groupId}`)
+            .then(res => res.json())
+            .then(data => {
+                groupMembers = data;
+                document.getElementById('splits-container').innerHTML = '<p class="text-muted">Now select split method</p>';
+            })
+            .catch(() => {
+                groupMembers = [];
+                document.getElementById('splits-container').innerHTML = '<p class="text-danger">Error loading members</p>';
+            });
+    });
+
+    // Generate split inputs based on method
+    document.getElementById('method').addEventListener('change', function () {
+        const method = this.value;
+        const container = document.getElementById('splits-container');
+        container.innerHTML = '';
+
+        if (!groupMembers.length) {
+            container.innerHTML = '<p class="text-warning">Please select a group first.</p>';
+            return;
+        }
+
+        if (method === 'equal') {
+            container.innerHTML = '<p>Expense will be split equally among all members.</p>';
+            groupMembers.forEach(user => {
+                container.innerHTML += `<input type="hidden" name="splits[${user.id}]" value="0">`;
+            });
+        } else {
+            groupMembers.forEach(user => {
+                container.innerHTML += `
+                    <div class="mb-2">
+                        <label>${user.name}</label>
+                        <input type="number" step="0.01" class="form-control" name="splits[${user.id}]"
+                               placeholder="Enter ${method === 'adjustment' ? 'adjusted amount' : method}">
+                    </div>
+                `;
+            });
+        }
     });
 </script>
 
