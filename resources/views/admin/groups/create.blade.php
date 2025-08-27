@@ -51,17 +51,19 @@
           </div>
         @endif
 
+       
+
         <form action="{{ route('admin.groups.store') }}" method="POST">
           @csrf
 
           <div class="mb-3">
             <label class="form-label">Group Name</label>
-            <input type="text" name="name" class="form-control" required>
+            <input type="text" name="name" class="form-control" value="{{ old('name') }}" required>
           </div>
 
           <div class="mb-3">
             <label class="form-label">Description</label>
-            <textarea name="description" rows="3" class="form-control"></textarea>
+            <textarea name="description" rows="3" class="form-control">{{ old('description') }}</textarea>
           </div>
 
           <div class="mb-3">
@@ -69,19 +71,29 @@
             <select name="created_by" class="form-select" required>
               <option value="">-- Select User --</option>
               @foreach ($users as $user)
-                <option value="{{ $user->id }}">{{ $user->name }}</option>
+                <option value="{{ $user->id }}" {{ old('created_by') == $user->id ? 'selected' : '' }}>{{ $user->name }}</option>
               @endforeach
             </select>
           </div>
 
           <div class="mb-3">
             <label class="form-label">Budget (₹)</label>
-            <input type="number" name="budget" class="form-control" step="0.01" min="0">
+            <input type="number" name="budget" class="form-control" step="0.01" min="0" value="{{ old('budget') }}">
           </div>
 
-         
+          <div class="mb-3">
+            <label class="form-label">Category</label>
+            <select name="category" class="form-select" required>
+              <option value="">-- Select Category --</option>
+              <option value="Expenses" {{ old('category')=='Expenses' ? 'selected' : '' }}>Expenses</option>
+              <option value="Incomes" {{ old('category')=='Incomes' ? 'selected' : '' }}>Incomes</option>
+              <option value="Loans" {{ old('category')=='Loans' ? 'selected' : '' }}>Loans</option>
+              <option value="Investments" {{ old('category')=='Investments' ? 'selected' : '' }}>Investments</option>
+            </select>
+          </div>
+
           <div class="mb-3 form-check">
-            <input type="checkbox" class="form-check-input" id="is_permanent" name="permanent" value="1">
+            <input type="checkbox" class="form-check-input" id="is_permanent" name="permanent" value="1" {{ old('permanent') ? 'checked' : '' }}>
             <label class="form-check-label" for="is_permanent">Permanent</label>
           </div>
 

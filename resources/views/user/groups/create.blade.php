@@ -36,61 +36,55 @@
                 <div class="alert alert-success">{{ session('success') }}</div>
             @endif
 
-           
+            
 
             <form action="{{ route('user.groups.store') }}" method="POST">
                 @csrf
+
                 <div class="mb-3">
                     <label for="name" class="form-label">Group Name</label>
-                    <input
-                        type="text"
-                        name="name"
-                        id="name"
+                    <input type="text" name="name" id="name"
                         value="{{ old('name') }}"
-                        class="form-control"
-                        required
-                    />
+                        class="form-control" required />
                 </div>
 
                 <div class="mb-3">
                     <label for="description" class="form-label">Group Description</label>
-                    <textarea
-                        name="description"
-                        id="description"
-                        rows="3"
-                        class="form-control"
-                        >{{ old('description') }}</textarea>
+                    <textarea name="description" id="description" rows="3"
+                        class="form-control">{{ old('description') }}</textarea>
+                </div>
+
+                <!-- Category Field -->
+                <div class="mb-3">
+                    <label for="category" class="form-label">Group Category</label>
+                    <select name="category" id="category" class="form-select" required>
+                        <option value="">-- Select Category --</option>
+                        <option value="Expenses" {{ old('category') == 'expenses' ? 'selected' : '' }}>Expenses</option>
+                        <option value="incomes" {{ old('category') == 'Incomes' ? 'selected' : '' }}>Incomes</option>
+                        <option value="loans" {{ old('category') == 'Loans' ? 'selected' : '' }}>Loans</option>
+                        <option value="investments" {{ old('category') == 'Investments' ? 'selected' : '' }}>Investments</option>
+                    </select>
                 </div>
 
                 <!-- Budget Field -->
                 <div class="mb-3">
                     <label for="budget" class="form-label">Group Budget (₹)</label>
-                    <input
-                        type="number"
-                        name="budget"
-                        id="budget"
-                        step="0.01"
-                        min="0"
+                    <input type="number" name="budget" id="budget"
+                        step="0.01" min="0"
                         value="{{ old('budget') }}"
-                        class="form-control"
-                        required
-                    />
+                        class="form-control" required />
                 </div>
 
                 <!-- Permanent Group Checkbox -->
-              <div class="form-check mb-3">
-    <input
-        type="checkbox"
-        name="permanent"
-        id="permanent"
-        value="1"
-        class="form-check-input"
-        {{ old('permanent') ? 'checked' : '' }}
-    />
-    <label class="form-check-label" for="permanent">
-        Permanent Group
-    </label>
-</div>
+                <div class="form-check mb-3">
+                    <input type="checkbox" name="permanent" id="permanent"
+                        value="1" class="form-check-input"
+                        {{ old('permanent') ? 'checked' : '' }} />
+                    <label class="form-check-label" for="permanent">
+                        Permanent Group
+                    </label>
+                </div>
+
                 <div class="d-flex justify-content-between">
                     <button type="submit" class="btn btn-primary btn-animated">
                         <i class="bi bi-plus-circle"></i> Create Group
@@ -114,4 +108,4 @@
     {{-- Bootstrap Icons --}}
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet" />
 </body>
-</html>
+</html>  

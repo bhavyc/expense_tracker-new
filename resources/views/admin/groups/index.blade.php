@@ -75,6 +75,7 @@
             <th>#</th>
             <th>Group Name</th>
             <th>Description</th>
+            <th>Category</th>
             <th>Budget</th>
             <th>Permanent</th>
             <th>Created By</th>
@@ -88,6 +89,7 @@
             <td>{{ $key + 1 }}</td>
             <td>{{ $group->name }}</td>
             <td>{{ $group->description }}</td>
+            <td>{{ $group->category ?? 'N/A' }}</td>
             <td>
               @if(!is_null($group->budget))
                 ₹{{ number_format($group->budget, 2) }}
@@ -109,7 +111,6 @@
               <a href="{{ route('admin.groups.analytics', $group->id) }}" 
                  class="btn btn-outline-info btn-sm">📊 View</a>
 
-              <!-- ✅ Naya Button Monthly Analytics ke liye -->
               <a href="{{ route('admin.groups.monthly_analytics', $group->id) }}" 
                  class="btn btn-outline-warning btn-sm mt-1">📈 Monthly</a>
             </td> 
@@ -133,7 +134,7 @@
 
           @if ($groups->isEmpty())
             <tr>
-              <td colspan="8" class="text-center text-muted">No groups found.</td>
+              <td colspan="9" class="text-center text-muted">No groups found.</td>
             </tr>
           @endif
         </tbody>

@@ -21,6 +21,23 @@ use App\Http\Controllers\groupController as grController ;
 use  App\Http\Controllers\FeedbackController as fController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Password;
+use App\Http\Controllers\chatController;
+ 
+use App\Models\User;
+use Illuminate\Support\Facades\Auth;
+use App\Models\Message;
+
+// chatbox
+// Route::middleware('auth')->get('account/chat/{userId?}', function ($userId = 1) { 
+//     // default admin ID = 1
+//     $messages = Message::where(function($q) use ($userId) {
+//         $q->where('sender_id', Auth::id())->where('receiver_id', $userId);
+//     })->orWhere(function($q) use ($userId) {
+//         $q->where('sender_id', $userId)->where('receiver_id', Auth::id());
+//     })->orderBy('created_at', 'asc')->get();
+
+//     return view('user.chat', compact('messages', 'userId'));
+// })->name('user.chat');
 
 Route::get('/', function () {
     return redirect('/admin/login');
@@ -98,6 +115,21 @@ Route::post('/reset-password', function (Request $request) {
  Route::get('/group-budget-left/{groupId}', [eController::class, 'getBudgetLeft'])->name('group.budget-left');
 
     Route::group(['middleware' => 'auth'], function () {
+
+
+        // chatbox 
+
+         Route::get('/chat/{adminId}', function ($adminId) {
+            $admin = \App\Models\User::findOrFail($adminId);
+            return view('user.chat', compact('admin'));
+        })->name('user.chat');
+
+        Route::get('/messages/{adminId}', [chatController::class, 'fetchUserMessages'])->name('user.messages');
+Route::post('/messages', [chatController::class, 'sendUserMessage'])->name('user.messages.send');
+
+    
+    //      Route::get('/messages/{userId}', [chatController::class, 'fetchMessages'])->name('user.messages');
+    // Route::post('/messages', [chatController::class, 'sendMessage'])->name('user.messages.send'); // <-- define this
         Route::get('/dashboard', [dashboardController::class, 'index'])->name('account.dashboard');
         Route::get('/logout', [loginController::class, 'logout'])->name('account.logout');
         Route::get('/index', [userController::class, 'index'])->name('account.index');
@@ -173,6 +205,21 @@ Route::post(' authenticate', [AdminLoginController::class, 'authenticate'])->nam
     Route::group(['middleware' => 'admin.auth'], function () {
        Route::get('dashboard', [AdminDashboardController::class, 'index'])->name('admin.dashboard');
  
+// chatbox
+  // <<< यहाँ नीचे add करो chat routes >>>
+        Route::get('/chat/{userId}', function ($userId) {
+            $user = \App\Models\User::findOrFail($userId);
+            return view('admin.chat', compact('user'));
+        })->name('admin.chat');
+
+       Route::get('/messages/{userId}', [chatController::class, 'fetchAdminMessages'])->name('admin.messages');
+Route::post('/messages', [chatController::class, 'sendAdminMessage'])->name('admin.messages.send');
+
+
+
+//  Route::get('/messages/{userId}', [chatController::class, 'fetchMessages'])->name('admin.messages');
+//         //  Route::get('chat/{userId}', [ChatController::class, 'fetchMessages'])->name('admin.chat');
+//     Route::post('messages', [ChatController::class, 'sendMessage'])->name('admin.messages.send');
     Route::get('logout', [AdminLoginController::class, 'logout'])->name('admin.logout');
        Route::get('/expenses', [ExpenseController::class, 'index'])->name('admin.expenses.index');
     Route::get('/expenses/create', [ExpenseController::class, 'create'])->name('admin.expenses.create');
@@ -191,7 +238,7 @@ Route::post(' authenticate', [AdminLoginController::class, 'authenticate'])->nam
  Route::resource('splits', SplitController::class)->names('admin.splits');
    Route::get('/get-groups-users/{id}', [ExpenseController::class, 'getUsersByGroup']);
  
-
+ 
 //  categories
 Route::resource('categories', categoriesController::class)->names('admin.categories');
 
@@ -280,4 +327,30 @@ Route::get('/test-mail', function () {
  // routes/web.php
 
 // For users
+//  chatbox
+// Route::middleware('admin.auth')->get('admin/chat/{userId}', function ($userId) {
+//     return view('admin.chat', compact('userId'));
+// })->name('admin.chat');
+
+// User messages
+// Route::prefix('account')->middleware('auth')->group(function () {
+//     Route::get('/messages/{userId}', [chatController::class, 'fetchMessages'])->name('user.messages');
+//     Route::post('/messages', [chatController::class, 'sendMessage'])->name('user.messages.send');
+// });
+
+// Admin messages
+ 
+// Route::middleware('admin.auth')->get('admin/chat/{userId}', function ($userId) {
+//     $user = User::findOrFail($userId); // fetch the selected user
+//     $messages = \App\Models\Message::where(function($q) use ($userId) {
+//         $q->where('sender_id', Auth::id())->where('receiver_id', $userId);
+//     })->orWhere(function($q) use ($userId) {
+//         $q->where('sender_id', $userId)->where('receiver_id', Auth::id());
+//     })->orderBy('created_at', 'asc')->get();
+
+//     return view('admin.chat', compact('user', 'messages'));
+// })->name('admin.chat');
+
+
+// sab ke liye common
  

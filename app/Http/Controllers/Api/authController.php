@@ -288,6 +288,30 @@ class AuthController extends Controller
             'message' => 'Logged out successfully.',
         ]);
     }
+
+    public function lookupByPhone(Request $request)
+{ 
+    $request->validate([
+        'phone_number' => 'required|string|max:15',
+    ]);
+
+    $user = User::where('phone_number', $request->phone_number)->first();
+
+    if (!$user) {
+        return response()->json([
+            'success' => false,
+            'message' => 'No user found with this phone number.',
+        ], 404);
+    }
+
+    return response()->json([
+        'success' => true,
+        'message' => 'User found.',
+        'user' => $user,
+    ], 200);
 }
+}
+
+
 
 

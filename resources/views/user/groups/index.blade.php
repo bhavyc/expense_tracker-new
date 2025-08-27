@@ -66,6 +66,7 @@
                         @if($group->permanent)
                             <span class="badge-permanent" title="This is a permanent group">Permanent</span>
                         @endif
+                        <span class="badge bg-secondary ms-2">{{ $group->category }}</span>
                     </h5>
                     <p class="text-muted mb-1">{{ $group->description }}</p>
 
@@ -114,11 +115,11 @@
                 <div class="mt-3">
                     <form action="{{ route('user.groups.members.add', $group->id) }}" method="POST" class="d-flex gap-2">
                         @csrf
-                        <select name="user_id" class="form-select form-select-sm" style="max-width:200px;" required>
+                        <select name="phone_number" class="form-select form-select-sm" style="max-width:200px;" required>
                             <option value="">Select User</option>
                             @foreach($users as $user)
-                                @if($user->id !== $group->created_by)
-                                    <option value="{{ $user->id }}">{{ $user->name }}</option>
+                                @if($user->id !== $group->created_by && $user->role !=='admin' )
+                                    <option value="{{ $user->phone_number }}">{{ $user->phone_number }}</option>
                                 @endif
                             @endforeach
                         </select>

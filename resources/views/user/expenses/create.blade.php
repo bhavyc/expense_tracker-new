@@ -27,8 +27,8 @@
         <!-- Group -->
         <div class="mb-3">
             <label for="group_id" class="form-label">Group</label>
-            <select name="group_id" id="group_id" class="form-control" required>
-                <option value="">-- Select Group --</option>
+            <select name="group_id" id="group_id" class="form-control">
+                <option value="">-- None --</option>
                 @foreach($groups as $group)
                     <option value="{{ $group->id }}">{{ $group->name }}</option>
                 @endforeach
@@ -64,10 +64,10 @@
             <input type="text" name="category" id="category" class="form-control" maxlength="100" required />
         </div>
 
-        <!-- Split Method -->
-        <div class="mb-3">
+        <!-- Split Method (only visible if group selected) -->
+        <div class="mb-3" id="method-container" style="display:none;">
             <label for="method" class="form-label">Split Method</label>
-            <select name="method" id="method" class="form-control" required>
+            <select name="method" id="method" class="form-control">
                 <option value="equal" selected>Equal</option>
                 <option value="unequal">Unequal</option>
                 <option value="percentage">Percentage</option>
@@ -106,42 +106,29 @@
 <script>
 const methodSelect = document.getElementById('method');
 const groupSelect = document.getElementById('group_id');
+const methodContainer = document.getElementById('method-container');
 const splitsContainer = document.getElementById('user-splits-container');
 const splitsFields = document.getElementById('user-splits-fields');
 let groupUsers = [];
 
-// Fetch budget left and group users
+// Show/hide Split Method and fetch group users
 groupSelect.addEventListener('change', function() {
     const groupId = this.value;
-    const budgetInfo = document.getElementById('budget-left-info');
-    const budgetValue = document.getElementById('budget-left-value');
-
     if (!groupId) {
-        budgetInfo.style.display = 'none';
-        budgetValue.textContent = '0.00';
-        groupUsers = [];
+        methodContainer.style.display = 'none';
         splitsContainer.style.display = 'none';
+        groupUsers = [];
         return;
     }
 
-    // Fetch budget left
-    fetch('/account/group-budget-left/' + groupId)
-        .then(res => res.json())
-        .then(data => {
-            budgetValue.textContent = parseFloat(data.budgetLeft).toFixed(2);
-            budgetInfo.style.display = 'block';
-        })
-        .catch(() => {
-            budgetInfo.style.display = 'none';
-            budgetValue.textContent = '0.00';
-        });
+    methodContainer.style.display = 'block';
 
     // Fetch group users
     fetch('/account/group/' + groupId + '/users')
         .then(res => res.json())
         .then(users => {
             groupUsers = users;
-            generateSplits(); // in case method already selected
+            generateSplits();
         });
 });
 

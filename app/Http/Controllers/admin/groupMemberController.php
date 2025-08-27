@@ -63,7 +63,7 @@ class groupMemberController extends Controller
     }
     function destroy($id)
     {
-        // delete karne ka logic hai
+      
         $groupMember = GroupMember::findOrFail($id);
         $groupMember->delete();
 

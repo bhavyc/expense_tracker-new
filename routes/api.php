@@ -55,45 +55,28 @@ Route::middleware('auth:api')->group(function () {
     Route::get('/groups/{id}/weekly-expenses', [groupController::class, 'weeklyExpenses']);
 });
 
+Route::middleware('auth:api')->group(function () {
+    Route::get('/groups', [groupController::class, 'index']);
+    Route::post('/groups', [groupController::class, 'store']);
+    Route::get('/groups/{id}', [groupController::class, 'show']);
+    Route::put('/groups/{id}', [groupController::class, 'update']);
+    Route::delete('/groups/{id}', [groupController::class, 'destroy']);
+
+    Route::patch('/groups/{id}/budget', [groupController::class, 'updateBudget']);
+    Route::get('/groups/{id}/weekly-expenses', [groupController::class, 'weeklyExpenses']);
+    Route::get('/groups/{id}/monthly-expenses', [groupController::class, 'monthlyExpenses']);
+    Route::get('/groups/{id}/analytics', [groupController::class, 'analytics']);
+    Route::get('/groups/{id}/monthly-analytics', [groupController::class, 'monthlyAnalytics']);
+
+    Route::post('/groups/{id}/members', [groupController::class, 'addMember']);
+    Route::get('/groups/{id}/users', [groupController::class, 'getUsers']);
+});
+
+
 // ✅ Dashboard
 Route::middleware('auth:api')->group(function () {
     Route::get('/dashboard', [dashboardController::class, 'index']);
 });
 
-
-// Route::post('register', [AuthController::class, 'register']);
-// Route::post('login', [AuthController::class, 'login']);
-
-// // Authenticated user routes
-// Route::middleware('auth:sanctum')->group(function () {
-//     Route::post('logout', [AuthController::class, 'logout']);
-//     Route::get('user', [AuthController::class, 'user']); // logged-in user info
-// });
-
-
-
-// Route::middleware('auth:sanctum')->group(function () {
-//     Route::get('/expenses', [apiExpenseController::class, 'index']);
-//     Route::post('/expenses', [apiExpenseController::class, 'store']);
-//     Route::get('/groups', [apiExpenseController::class, 'groups']);
-//     Route::get('/groups/{groupId}/budget-left', [apiExpenseController::class, 'getBudgetLeft']);
-// });
-
-
-
-
-// Route::middleware('auth:sanctum')->group(function () {
-//     Route::get('/groups', [groupController::class, 'index']);               // List groups
-//     Route::post('/groups', [groupController::class, 'store']);              // Create group
-//     Route::put('/groups/{id}', [groupController::class, 'update']);         // Update group
-//     Route::get('/groups/{id}/weekly-expenses', [groupController::class, 'weeklyExpenses']); // Weekly expenses summary
-// });
-
-
  
-
-// Route::middleware('auth:sanctum')->group(function () {
-//     Route::get('/dashboard', [dashboardController::class, 'index']);
-// });
-
-// Route::post('lookup-user', [AuthController::class, 'lookupByPhone']);
+ 

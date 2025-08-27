@@ -83,27 +83,24 @@
                 </select>
             </div>
 
-            <!-- Notes -->
-            <div class="mb-3">
-                <label class="form-label">Notes</label>
-                <textarea name="notes" class="form-control" rows="3"></textarea>
-            </div>
+            <!-- Split Section (Hidden initially) -->
+            <div id="split-section" style="display: none;">
+                <!-- Split Method -->
+                <div class="mb-3">
+                    <label for="method" class="form-label">Split Method</label>
+                    <select name="method" id="method" class="form-select">
+                        <option value="">Select Method</option>
+                        <option value="equal">Equally</option>
+                        <option value="unequal">Unequally</option>
+                        <option value="shares">By Shares</option>
+                        <option value="percentage">By Percentage</option>
+                        <option value="adjustment">By Adjustment</option>
+                    </select>
+                </div>
 
-            <!-- Split Method -->
-            <div class="mb-3">
-                <label for="method" class="form-label">Split Method</label>
-                <select name="method" id="method" class="form-select" required>
-                    <option value="">Select Method</option>
-                    <option value="equal">Equally</option>
-                    <option value="unequal">Unequally</option>
-                    <option value="shares">By Shares</option>
-                    <option value="percentage">By Percentage</option>
-                    <option value="adjustment">By Adjustment</option>
-                </select>
+                <!-- Members Splits -->
+                <div id="splits-container" class="mt-3"></div>
             </div>
-
-            <!-- Members Splits -->
-            <div id="splits-container" class="mt-3"></div>
 
             <button type="submit" class="btn btn-success w-100 mt-3">Save Expense</button>
         </form>
@@ -111,7 +108,10 @@
 </div>
 
 <script>
+document.addEventListener('DOMContentLoaded', function() {
     let groupMembers = [];
+    const splitSection = document.getElementById('split-section');
+    const methodSelect = document.getElementById('method');
 
     // Fetch groups by selected user
     document.getElementById('user_id').addEventListener('change', function () {
@@ -132,11 +132,24 @@
             });
     });
 
-    // Fetch group members
+    // Fetch group members & toggle split section
     document.getElementById('group_id').addEventListener('change', function () {
         const groupId = this.value;
-        if (!groupId) return;
 
+        if (!groupId) {
+            // Hide split section if "None" is selected
+            splitSection.style.display = 'none';
+            methodSelect.removeAttribute('required');
+            groupMembers = [];
+            document.getElementById('splits-container').innerHTML = '';
+            return;
+        }
+
+        // Show split section
+        splitSection.style.display = 'block';
+        methodSelect.setAttribute('required', 'required');
+
+        // Fetch members
         fetch(`/admin/get-users-by-group/${groupId}`)
             .then(res => res.json())
             .then(data => {
@@ -150,7 +163,7 @@
     });
 
     // Generate split inputs based on method
-    document.getElementById('method').addEventListener('change', function () {
+    methodSelect.addEventListener('change', function () {
         const method = this.value;
         const container = document.getElementById('splits-container');
         container.innerHTML = '';
@@ -177,6 +190,7 @@
             });
         }
     });
+});
 </script>
 
 </body>

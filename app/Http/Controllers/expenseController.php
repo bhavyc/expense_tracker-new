@@ -116,20 +116,28 @@ class expenseController extends Controller
 
  
 
-
-  public function store(Request $request)
+public function store(Request $request)
 {
-    $request->validate([
+    
+    // Base validation
+    $rules = [
         'description' => 'required|string|max:255',
         'amount' => 'required|numeric|min:0',
         'expense_date' => 'required|date',
         'category' => 'required|string|max:100',
         'group_id' => 'nullable|exists:groups,id',
-        'method' => 'required|in:equal,unequal,percentage,shares,adjustment',
-        'splits' => 'nullable|array'
-    ]);
+        'notes' => 'nullable|string|max:500',
+    ];  
 
-    // 1️⃣ Create Expense
+    // Only validate 'method' and 'splits' if group selected
+    if ($request->group_id) {
+        $rules['method'] = 'required|in:equal,unequal,percentage,shares,adjustment';
+        $rules['splits'] = 'nullable|array';
+    }
+
+    $request->validate($rules);
+
+     
     $expense = Expense::create([
         'user_id' => Auth::id(),
         'group_id' => $request->group_id,
@@ -141,196 +149,140 @@ class expenseController extends Controller
         'notes' => $request->notes,
     ]);
 
-    // 2️⃣ Fetch Group Members
-    $group = Group::with('users')->find($request->group_id);
-    $members = $group ? $group->users : collect([Auth::user()]);
+     
+    if ($request->group_id) {
+        $group = Group::with('users')->find($request->group_id);
+        $members = $group ? $group->users : collect([Auth::user()]);
 
-    // 3️⃣ Split Logic
-    switch ($request->method) {
+        $method = $request->method;
+        $splitsInput = $request->splits ?? [];
 
-        case 'equal':
-            $splitAmount = round($request->amount / $members->count(), 2);
+        switch ($method) {
 
-            foreach ($members as $member) {
-                if ($member->id == Auth::id()) {
-                    $creatorLent = $request->amount - $splitAmount;
+            case 'equal':
+                $perUserAmount = round($request->amount / $members->count(), 2);
+                foreach ($members as $member) {
+                    $type = $member->id == Auth::id() ? 'lent' : 'owed';
+                    $amount = $type === 'lent' ? $request->amount - $perUserAmount : $perUserAmount;
 
-                    $split = \App\Models\Split::create([
+                    \App\Models\Split::create([
                         'user_id' => $member->id,
                         'expense_id' => $expense->id,
-                        'amount' => $creatorLent,
-                        'type' => 'lent',
-                        'method' => 'equal',
-                        'value' => null
+                        'amount' => $amount,
+                        'type' => $type,
+                        'method' => $method,
+                        'value' => null,
                     ]);
 
-                    $member->lent_total += $split->amount;
+                    if ($type === 'lent') $member->lent_total += $amount;
+                    else $member->owed_total += $amount;
                     $member->save();
-                } else {
-                    $split = \App\Models\Split::create([
-                        'user_id' => $member->id,
+                }
+                break;
+ 
+            case 'unequal':
+                $totalCustom = array_sum($splitsInput);
+                if ($totalCustom != $request->amount) {
+                    return back()->withInput()->withErrors(['splits' => 'Sum of unequal splits must equal total amount.']);
+                }
+                foreach ($splitsInput as $userId => $amount) {
+                    $user = \App\Models\User::find($userId);
+                    if (!$user) continue;
+                    $type = $userId == Auth::id() ? 'lent' : 'owed';
+                    $splitAmount = $type === 'lent' ? $request->amount - $amount : $amount;
+
+                    \App\Models\Split::create([
+                        'user_id' => $userId,
                         'expense_id' => $expense->id,
                         'amount' => $splitAmount,
-                        'type' => 'owed',
-                        'method' => 'equal',
-                        'value' => null
+                        'type' => $type,
+                        'method' => $method,
+                        'value' => $amount,
                     ]);
 
-                    $member->owed_total += $split->amount;
-                    $member->save();
-                }
-            }
-            break;
-
-        case 'unequal':
-            $creatorShare = $request->splits[Auth::id()] ?? 0;
-            $creatorLent = $request->amount - $creatorShare;
-
-            foreach ($request->splits as $userId => $customAmount) {
-                $user = \App\Models\User::find($userId);
-                if (!$user) continue;
-
-                if ($userId == Auth::id()) {
-                    $split = \App\Models\Split::create([
-                        'user_id' => $userId,
-                        'expense_id' => $expense->id,
-                        'amount' => $creatorLent,
-                        'type' => 'lent',
-                        'method' => 'unequal',
-                        'value' => $customAmount
-                    ]);
-
-                    $user->lent_total += $split->amount;
-                    $user->save();
-                } else {
-                    $split = \App\Models\Split::create([
-                        'user_id' => $userId,
-                        'expense_id' => $expense->id,
-                        'amount' => $customAmount,
-                        'type' => 'owed',
-                        'method' => 'unequal',
-                        'value' => $customAmount
-                    ]);
-
-                    $user->owed_total += $split->amount;
+                    if ($type === 'lent') $user->lent_total += $splitAmount;
+                    else $user->owed_total += $splitAmount;
                     $user->save();
                 }
-            }
-            break;
+                break;
 
-        case 'percentage':
-            $creatorPercentage = $request->splits[Auth::id()] ?? 0;
-            $creatorShare = round(($request->amount * $creatorPercentage) / 100, 2);
-            $creatorLent = $request->amount - $creatorShare;
+            case 'percentage':
+                foreach ($splitsInput as $userId => $percentage) {
+                    $user = \App\Models\User::find($userId);
+                    if (!$user) continue;
+                    $amount = round($request->amount * ($percentage / 100), 2);
+                    $type = $userId == Auth::id() ? 'lent' : 'owed';
+                    $splitAmount = $type === 'lent' ? $request->amount - $amount : $amount;
 
-            foreach ($request->splits as $userId => $percentage) {
-                $user = \App\Models\User::find($userId);
-                if (!$user) continue;
-
-                $amount = round(($request->amount * $percentage) / 100, 2);
-
-                if ($userId == Auth::id()) {
-                    $split = \App\Models\Split::create([
+                    \App\Models\Split::create([
                         'user_id' => $userId,
                         'expense_id' => $expense->id,
-                        'amount' => $creatorLent,
-                        'type' => 'lent',
-                        'method' => 'percentage',
-                        'value' => $percentage
+                        'amount' => $splitAmount,
+                        'type' => $type,
+                        'method' => $method,
+                        'value' => $percentage,
                     ]);
 
-                    $user->lent_total += $split->amount;
-                    $user->save();
-                } else {
-                    $split = \App\Models\Split::create([
-                        'user_id' => $userId,
-                        'expense_id' => $expense->id,
-                        'amount' => $amount,
-                        'type' => 'owed',
-                        'method' => 'percentage',
-                        'value' => $percentage
-                    ]);
-
-                    $user->owed_total += $split->amount;
+                    if ($type === 'lent') $user->lent_total += $splitAmount;
+                    else $user->owed_total += $splitAmount;
                     $user->save();
                 }
-            }
-            break;
+                break;
 
-        case 'shares':
-            $totalShares = array_sum($request->splits);
-            $creatorShare = round(($request->amount * ($request->splits[Auth::id()] ?? 0)) / $totalShares, 2);
-            $creatorLent = $request->amount - $creatorShare;
+            case 'shares':
+                $totalShares = array_sum($splitsInput);
+                foreach ($splitsInput as $userId => $share) {
+                    $user = \App\Models\User::find($userId);
+                    if (!$user) continue;
+                    $amount = round($request->amount * ($share / $totalShares), 2);
+                    $type = $userId == Auth::id() ? 'lent' : 'owed';
+                    $splitAmount = $type === 'lent' ? $request->amount - $amount : $amount;
 
-            foreach ($request->splits as $userId => $shares) {
-                $user = \App\Models\User::find($userId);
-                if (!$user) continue;
-
-                $amount = round(($request->amount * $shares) / $totalShares, 2);
-
-                if ($userId == Auth::id()) {
-                    $split = \App\Models\Split::create([
+                    \App\Models\Split::create([
                         'user_id' => $userId,
                         'expense_id' => $expense->id,
-                        'amount' => $creatorLent,
-                        'type' => 'lent',
-                        'method' => 'shares',
-                        'value' => $shares
+                        'amount' => $splitAmount,
+                        'type' => $type,
+                        'method' => $method,
+                        'value' => $share,
                     ]);
 
-                    $user->lent_total += $split->amount;
-                    $user->save();
-                } else {
-                    $split = \App\Models\Split::create([
-                        'user_id' => $userId,
-                        'expense_id' => $expense->id,
-                        'amount' => $amount,
-                        'type' => 'owed',
-                        'method' => 'shares',
-                        'value' => $shares
-                    ]);
-
-                    $user->owed_total += $split->amount;
+                    if ($type === 'lent') $user->lent_total += $splitAmount;
+                    else $user->owed_total += $splitAmount;
                     $user->save();
                 }
-            }
-            break;
+                break;
 
-        case 'adjustment':
-            foreach ($members as $member) {
-                $user = \App\Models\User::find($member->id);
-                if (!$user) continue;
+            case 'adjustment':
+                foreach ($members as $member) {
+                    $user = \App\Models\User::find($member->id);
+                    if (!$user) continue;
 
-                if ($member->id == Auth::id()) {
-                    $split = \App\Models\Split::create([
-                        'user_id' => $member->id,
-                        'expense_id' => $expense->id,
-                        'amount' => $request->amount,
-                        'type' => 'lent',
-                        'method' => 'adjustment',
-                        'value' => $request->amount
-                    ]);
+                    if ($member->id == Auth::id()) {
+                        $splitAmount = $request->amount;
+                        $type = 'lent';
+                    } else {
+                        $splitAmount = $splitsInput[$member->id] ?? 0;
+                        $type = 'owed';
+                    }
 
-                    $user->lent_total += $split->amount;
-                    $user->save();
-                } else {
-                    $owedAmount = $request->splits[$member->id] ?? 0;
-                    if ($owedAmount > 0) {
-                        $split = \App\Models\Split::create([
+                    if ($splitAmount > 0) {
+                        \App\Models\Split::create([
                             'user_id' => $member->id,
                             'expense_id' => $expense->id,
-                            'amount' => $owedAmount,
-                            'type' => 'owed',
-                            'method' => 'adjustment',
-                            'value' => $owedAmount
+                            'amount' => $splitAmount,
+                            'type' => $type,
+                            'method' => $method,
+                            'value' => $splitAmount,
                         ]);
 
-                        $user->owed_total += $split->amount;
+                        if ($type === 'lent') $user->lent_total += $splitAmount;
+                        else $user->owed_total += $splitAmount;
                         $user->save();
                     }
                 }
-            }
-            break;
+                break;
+        }
     }
 
     return redirect()->route('user.expenses.index')
