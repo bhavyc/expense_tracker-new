@@ -71,7 +71,7 @@ let csrfToken = $('meta[name="csrf-token"]').attr('content');
 function loadMessages() {
     $.get("/admin/messages/" + receiverId, function(data) {
         $("#chat-box").html('');
-        data.forEach(msg => {
+        data.forEach(msg => {    
             let cls = msg.sender_id == myId ? 'me' : 'user';
             let sender = msg.sender_id == myId ? 'Me' : 'User';
             $("#chat-box").append(`<div class="message ${cls}"><b>${sender}:</b> ${msg.message}</div>`);
@@ -97,6 +97,10 @@ $("#chat-form").submit(function(e){
         loadMessages();
     });
 });
+    
+
+
+
 </script>
 
 

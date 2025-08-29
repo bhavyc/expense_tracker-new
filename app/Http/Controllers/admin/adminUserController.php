@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\User;
 class adminUserController extends Controller
 {
+
    public function index()
     {
         // Load users with related expenses and groups
@@ -14,6 +15,7 @@ class adminUserController extends Controller
         ->where('role', '!=', 'admin')
         ->paginate(10);
          
+        // print_r($users);
         return view('admin.users.index', compact('users'));
     }
     public function edit($id)
@@ -48,4 +50,13 @@ class adminUserController extends Controller
 
         return redirect()->route('admin.users.index')->with('success', 'User deleted successfully.');
     }
+
+    public function showGroupUsers($groupId)
+{
+    // Group ke saath users load karo
+    $group = \App\Models\Group::with('users')->findOrFail($groupId);
+
+    return view('admin.groups.show', compact('group'));
+}
+
 }

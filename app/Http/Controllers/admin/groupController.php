@@ -200,6 +200,14 @@ class groupController extends Controller
 
         return view('admin.groups.monthly-analytics', compact('group', 'monthlyExpenses'));
     }
+
+    // Show all users of a specific group
+public function users($id)
+{
+    $group = Group::with('users')->findOrFail($id);
+    return view('admin.groups.users', compact('group'));
+}
+
 }
 
 // namespace App\Http\Controllers\admin;

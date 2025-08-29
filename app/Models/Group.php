@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Group extends Model
 {
-    protected $fillable = ['name', 'description','budget','permanent','created_by','category'];
+    protected $fillable = ['name', 'description','budget','permanent','created_by','category','carry_forward_model'];
 
     public function expenses()
     {

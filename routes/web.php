@@ -22,10 +22,11 @@ use  App\Http\Controllers\FeedbackController as fController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Password;
 use App\Http\Controllers\chatController;
- 
+use Illuminate\Support\Facades\Mail;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Message;
+use App\Http\Controllers\AdmobController;
 
 // chatbox
 // Route::middleware('auth')->get('account/chat/{userId?}', function ($userId = 1) { 
@@ -116,6 +117,13 @@ Route::post('/reset-password', function (Request $request) {
 
     Route::group(['middleware' => 'auth'], function () {
 
+  
+   
+
+//  to check carry_forward
+Route::get('/group/{group}/check-budget/{amount}', [eController::class, 'checkBudget']);
+
+
 
         // chatbox 
 
@@ -197,7 +205,7 @@ Route::group(['prefix' => 'admin'], function () {
      Route::group(['middleware' => 'admin.guest'], function () {
          Route::get('login', [AdminLoginController::class, 'index'])->name('admin.login');
  
-Route::post(' authenticate', [AdminLoginController::class, 'authenticate'])->name('admin.authenticate');
+Route::post('authenticate', [AdminLoginController::class, 'authenticate'])->name('admin.authenticate');
    
     });
     
@@ -205,6 +213,10 @@ Route::post(' authenticate', [AdminLoginController::class, 'authenticate'])->nam
     Route::group(['middleware' => 'admin.auth'], function () {
        Route::get('dashboard', [AdminDashboardController::class, 'index'])->name('admin.dashboard');
  
+        Route::get('/groups/{id}/users', [adminUserController::class, 'showGroupUsers'])->name('admin.groups.users');
+
+
+
 // chatbox
   // <<< यहाँ नीचे add करो chat routes >>>
         Route::get('/chat/{userId}', function ($userId) {
@@ -353,4 +365,5 @@ Route::get('/test-mail', function () {
 
 
 // sab ke liye common
- 
+ Route::get('/admob/reports', [AdmobController::class, 'reports']);
+Route::get('/fetch-revenue', [AdmobController::class, 'fetchRevenue']);

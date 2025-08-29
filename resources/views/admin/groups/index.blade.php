@@ -79,6 +79,7 @@
             <th>Budget</th>
             <th>Permanent</th>
             <th>Created By</th>
+            <th>Users</th>
             <th>Analytics</th>
             <th>Actions</th>
           </tr>
@@ -105,6 +106,13 @@
               @endif
             </td>
             <td>{{ $group->creator->name ?? 'N/A' }}</td>
+
+            <!-- Users Column -->
+            <td>
+              <a href="{{ route('admin.groups.users', $group->id) }}" class="btn btn-outline-dark btn-sm">
+                 {{ $group->users->count() }} Users
+              </a>
+            </td>
 
             <!-- Analytics Column -->
             <td>
@@ -134,7 +142,7 @@
 
           @if ($groups->isEmpty())
             <tr>
-              <td colspan="9" class="text-center text-muted">No groups found.</td>
+              <td colspan="10" class="text-center text-muted">No groups found.</td>
             </tr>
           @endif
         </tbody>

@@ -50,6 +50,8 @@
         <div class="mb-3">
             <label for="amount" class="form-label">Amount</label>
             <input type="number" name="amount" id="amount" class="form-control" step="0.01" min="0" required />
+            <!-- Budget Warning -->
+            <div id="budget-warning" style="font-weight:600; margin-top:5px; display:none;"></div>
         </div>
 
         <!-- Expense Date -->
@@ -109,6 +111,8 @@ const groupSelect = document.getElementById('group_id');
 const methodContainer = document.getElementById('method-container');
 const splitsContainer = document.getElementById('user-splits-container');
 const splitsFields = document.getElementById('user-splits-fields');
+const amountInput = document.getElementById('amount');
+const budgetWarning = document.getElementById('budget-warning');
 let groupUsers = [];
 
 // Show/hide Split Method and fetch group users
@@ -118,6 +122,7 @@ groupSelect.addEventListener('change', function() {
         methodContainer.style.display = 'none';
         splitsContainer.style.display = 'none';
         groupUsers = [];
+        budgetWarning.style.display = 'none';
         return;
     }
 
@@ -130,6 +135,9 @@ groupSelect.addEventListener('change', function() {
             groupUsers = users;
             generateSplits();
         });
+
+    // Also check budget when group changes
+    checkBudget();
 });
 
 // Generate user split inputs based on method
@@ -156,6 +164,44 @@ function generateSplits() {
 
 // Listen for method change
 methodSelect.addEventListener('change', generateSplits);
+
+// ===== Budget Checking =====
+function checkBudget() {
+    const groupId = groupSelect.value;
+    const amount = parseFloat(amountInput.value);
+
+    if (!groupId || !amount) {
+        budgetWarning.style.display = "none";
+        return;
+    }
+
+    fetch(`/account/group/${groupId}/check-budget/${amount}`)
+        .then(res => res.json())
+        .then(data => {
+            if (data.error) {
+                budgetWarning.style.display = "none";
+                return;
+            }
+
+            if (data.new_total > data.budget) {
+                let msg = `⚠️ Budget exceeded! (Budget: ₹${data.budget}, Spent: ₹${data.spent}, After this: ₹${data.new_total})`;
+
+                if (data.carry_forward > 0) {
+                    msg += `<br>✅ Carry Forward available: ₹${data.carry_forward}`;
+                }
+
+                budgetWarning.innerHTML = msg;
+                budgetWarning.style.color = "red";
+                budgetWarning.style.display = "block";
+            } else {
+                budgetWarning.innerHTML = `✅ Within Budget. Budget Left: ₹${(data.budget - data.new_total).toFixed(2)}`;
+                budgetWarning.style.color = "green";
+                budgetWarning.style.display = "block";
+            }
+        });
+}
+
+amountInput.addEventListener('input', checkBudget);
 </script>
 </body>
 </html>

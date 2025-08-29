@@ -57,6 +57,10 @@
             background-color: #d9e0e7;
             transform: translateX(-2px);
         }
+
+        .badge {
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
@@ -93,7 +97,18 @@
                         <td>{{ $user->created_at->format('d M Y') }}</td>
                         <td>{{ $user->expenses->count() }}</td>
                         <td>₹{{ number_format($user->expenses->sum('amount'), 2) }}</td>
-                        <td>{{ $user->groups->count() }}</td>
+                        <td>
+                            @if($user->groups->count() > 0)
+                                @foreach($user->groups as $group)
+                                    <a href="{{ route('admin.groups.users', $group->id) }}" 
+                                       class="badge bg-info text-dark text-decoration-none me-1">
+                                        {{ $group->name }}
+                                    </a>
+                                @endforeach
+                            @else
+                                <span class="text-muted">No Groups</span>
+                            @endif
+                        </td>
                         <td>
                             <a href="{{ route('admin.users.edit', $user->id) }}" class="btn btn-sm btn-outline-primary">Update</a>
                             <form action="{{ route('admin.users.destroy', $user->id) }}" method="POST" style="display:inline-block;" onsubmit="return confirm('Are you sure to delete this user?');">
