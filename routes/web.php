@@ -118,12 +118,16 @@ Route::post('/reset-password', function (Request $request) {
     Route::group(['middleware' => 'auth'], function () {
 
   
-   
+//    personal budget check
+Route::get('/personal/check-budget/{amount}', [eController::class, 'checkPersonalBudget']);
 
 //  to check carry_forward
 Route::get('/group/{group}/check-budget/{amount}', [eController::class, 'checkBudget']);
 
 
+// personal budget
+  Route::get('/personal-budget', [userController::class, 'showBudgetForm'])->name('budget.form');
+    Route::post('/personal-budget', [userController::class, 'updateBudget'])->name('budget.update');
 
         // chatbox 
 
@@ -365,5 +369,25 @@ Route::get('/test-mail', function () {
 
 
 // sab ke liye common
- Route::get('/admob/reports', [AdmobController::class, 'reports']);
+Route::get('/admob/reports', [AdmobController::class, 'reports']);
 Route::get('/fetch-revenue', [AdmobController::class, 'fetchRevenue']);
+
+
+Route::get('/reset-budget', function () {
+    $users = User::all();
+
+    foreach ($users as $user) {
+        $carryForward = $user->personal_carry_forward_balance ?? 0;
+
+        $user->personal_budget = 0;
+
+        if ($carryForward > 0) {
+            $user->personal_budget += $carryForward;
+            $user->personal_carry_forward_balance = 0;
+        }
+
+        $user->save();
+    }
+
+    return "Budgets reset & carry forward adjusted successfully!";
+});

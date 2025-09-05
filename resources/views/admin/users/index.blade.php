@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <title>All Users | Admin</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
     <style>
         body {
             background: linear-gradient(to right, #e0f7fa, #f0f4f8);
@@ -44,7 +45,8 @@
         }
 
         .btn-outline-primary:hover,
-        .btn-outline-danger:hover {
+        .btn-outline-danger:hover,
+        .btn-outline-success:hover {
             transform: scale(1.05);
             transition: transform 0.2s ease;
         }
@@ -68,7 +70,7 @@
     <div class="card p-4">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <a href="{{ route('admin.dashboard') }}" class="btn btn-outline-primary">
-                 Dashboard
+                Dashboard
             </a>
             <h2 class="mb-0 text-center flex-grow-1">👥 All Registered Users</h2>
             <div style="width: 160px;"></div>
@@ -110,7 +112,17 @@
                             @endif
                         </td>
                         <td>
-                            <a href="{{ route('admin.users.edit', $user->id) }}" class="btn btn-sm btn-outline-primary">Update</a>
+                            <!-- ✅ Chat Button -->
+                            <a href="{{ route('admin.chat', $user->id) }}" class="btn btn-sm btn-outline-success me-1">
+                                <i class="bi bi-chat-dots"></i> Chat
+                            </a>
+
+                            <!-- Update Button -->
+                            <a href="{{ route('admin.users.edit', $user->id) }}" class="btn btn-sm btn-outline-primary me-1">
+                                Update
+                            </a>
+
+                            <!-- Delete Button -->
                             <form action="{{ route('admin.users.destroy', $user->id) }}" method="POST" style="display:inline-block;" onsubmit="return confirm('Are you sure to delete this user?');">
                                 @csrf
                                 @method('DELETE')

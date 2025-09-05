@@ -28,16 +28,16 @@
         <div class="mb-3">
             <label for="group_id" class="form-label">Group</label>
             <select name="group_id" id="group_id" class="form-control">
-                <option value="">-- None --</option>
+                <option value="">-- None (Personal Expense) --</option>
                 @foreach($groups as $group)
                     <option value="{{ $group->id }}">{{ $group->name }}</option>
                 @endforeach
             </select>
         </div>
 
-        <!-- Budget Left Info -->
+        <!-- Budget Info -->
         <div id="budget-left-info" class="mb-3" style="font-weight: 600; display: none;">
-            Budget Left for this Group: ₹<span id="budget-left-value">0.00</span>
+            <span id="budget-label"></span>: ₹<span id="budget-left-value">0.00</span>
         </div>
 
         <!-- Description -->
@@ -104,7 +104,6 @@
         <a href="{{ route('user.expenses.index') }}" class="btn btn-secondary">Back to Expenses</a>
     </form>
 </div>
-
 <script>
 const methodSelect = document.getElementById('method');
 const groupSelect = document.getElementById('group_id');
@@ -113,6 +112,9 @@ const splitsContainer = document.getElementById('user-splits-container');
 const splitsFields = document.getElementById('user-splits-fields');
 const amountInput = document.getElementById('amount');
 const budgetWarning = document.getElementById('budget-warning');
+const budgetLeftInfo = document.getElementById('budget-left-info');
+const budgetLabel = document.getElementById('budget-label');
+const budgetLeftValue = document.getElementById('budget-left-value');
 let groupUsers = [];
 
 // Show/hide Split Method and fetch group users
@@ -123,6 +125,10 @@ groupSelect.addEventListener('change', function() {
         splitsContainer.style.display = 'none';
         groupUsers = [];
         budgetWarning.style.display = 'none';
+
+        // Show personal budget info
+        budgetLabel.textContent = "Personal Budget Left";
+        budgetLeftInfo.style.display = "block";
         return;
     }
 
@@ -136,7 +142,11 @@ groupSelect.addEventListener('change', function() {
             generateSplits();
         });
 
-    // Also check budget when group changes
+    // Update label for group
+    budgetLabel.textContent = "Group Budget Left";
+    budgetLeftInfo.style.display = "block";
+
+    // Check immediately
     checkBudget();
 });
 
@@ -170,38 +180,77 @@ function checkBudget() {
     const groupId = groupSelect.value;
     const amount = parseFloat(amountInput.value);
 
-    if (!groupId || !amount) {
+    if (!amount || isNaN(amount)) {
         budgetWarning.style.display = "none";
+        budgetLeftValue.textContent = "0.00";
         return;
     }
 
-    fetch(`/account/group/${groupId}/check-budget/${amount}`)
-        .then(res => res.json())
-        .then(data => {
-            if (data.error) {
-                budgetWarning.style.display = "none";
-                return;
-            }
-
-            if (data.new_total > data.budget) {
-                let msg = `⚠️ Budget exceeded! (Budget: ₹${data.budget}, Spent: ₹${data.spent}, After this: ₹${data.new_total})`;
-
-                if (data.carry_forward > 0) {
-                    msg += `<br>✅ Carry Forward available: ₹${data.carry_forward}`;
+    // ✅ If group selected → check group budget
+    if (groupId) {
+        fetch(`/account/group/${groupId}/check-budget/${amount}`)
+            .then(res => res.json())
+            .then(data => {
+                if (data.error) {
+                    budgetWarning.style.display = "none";
+                    return;
                 }
 
-                budgetWarning.innerHTML = msg;
-                budgetWarning.style.color = "red";
+                const totalAvailable = (parseFloat(data.budget) || 0) + (parseFloat(data.carry_forward) || 0);
+                const left = totalAvailable - (parseFloat(data.new_total) || 0);
+
+                if (left < 0) {
+                    budgetWarning.innerHTML = `⚠️ Group Budget exceeded! (Budget: ₹${data.budget}, Carry Forward: ₹${data.carry_forward}, Spent: ₹${data.spent}, After this: ₹${data.new_total})`;
+                    budgetWarning.style.color = "red";
+                } else {
+                    budgetWarning.innerHTML = `✅ Within Group Budget. Budget Left: ₹${left.toFixed(2)}`;
+                    budgetWarning.style.color = "green";
+                }
                 budgetWarning.style.display = "block";
-            } else {
-                budgetWarning.innerHTML = `✅ Within Budget. Budget Left: ₹${(data.budget - data.new_total).toFixed(2)}`;
-                budgetWarning.style.color = "green";
+
+                // update top info
+                budgetLeftValue.textContent = left.toFixed(2);
+            });
+
+    } else {
+        //  No group → check personal budget
+        fetch(`/account/personal/check-budget/${amount}`)
+            .then(res => res.json())
+            .then(data => {
+                if (data.error) {
+                    budgetWarning.style.display = "none";
+                    return;
+                }
+
+                const totalAvailable = (parseFloat(data.budget) || 0) + (parseFloat(data.carry_forward) || 0);
+                const left = totalAvailable - (parseFloat(data.new_total) || 0);
+
+                if (left < 0) {
+                    budgetWarning.innerHTML = `⚠️ Personal Budget exceeded! (Budget: ₹${data.budget}, Carry Forward: ₹${data.carry_forward}, Spent: ₹${data.spent}, After this: ₹${data.new_total})`;
+                    budgetWarning.style.color = "red";
+                } else {
+                    budgetWarning.innerHTML = `✅ Within Personal Budget. Budget Left: ₹${left.toFixed(2)}`;
+                    budgetWarning.style.color = "green";
+                }
                 budgetWarning.style.display = "block";
-            }
-        });
+
+                // update top info
+                budgetLeftValue.textContent = left.toFixed(2);
+            });
+    }
 }
 
-amountInput.addEventListener('input', checkBudget);
+//   Debounce wrapper
+let budgetTimeout = null;
+amountInput.addEventListener('input', function () {
+    clearTimeout(budgetTimeout);
+    budgetTimeout = setTimeout(() => {
+        checkBudget();
+    }, 3000); // 3 sec delay
+});
+
+//  Check immediately on blur
+amountInput.addEventListener('blur', checkBudget);
 </script>
 </body>
 </html>

@@ -27,7 +27,7 @@ class Kernel extends ConsoleKernel
     $schedule->command('expenses:delete-old-personal')
         ->everyMinute();
         
-
+  $schedule->command('budget:reset')->monthlyOn(1, '00:00');
   $schedule->call(function () {
         \Log::info('Scheduler is running at ' . now());
     })->everyMinute();

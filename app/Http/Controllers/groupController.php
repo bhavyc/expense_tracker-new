@@ -572,7 +572,7 @@ public function monthlyExpenses($groupId)
 
 
 
-    // Get group users (Ajax)
+    // Get group users  
 public function getUsers($id)
 {
     $group = Group::with('users')->find($id);
@@ -591,4 +591,72 @@ public function getUsers($id)
     return response()->json($users);
 }
 
+
+
+    public function monthlyAnalytics($groupId)
+    {
+        $group = Group::with('users')->findOrFail($groupId);
+
+        if (!$group->users->contains(auth()->id())) {
+            abort(403, 'Unauthorized');
+        }
+
+        $startOfMonth = Carbon::now()->startOfMonth();
+        $endOfMonth = Carbon::now()->endOfMonth();
+
+        $weeklyExpenses = Expense::selectRaw('YEAR(expense_date) as year, WEEK(expense_date,1) as week, SUM(amount) as total')
+            ->where('group_id', $groupId)
+            ->whereBetween('expense_date', [$startOfMonth, $endOfMonth])
+            ->groupBy('year', 'week')
+            ->orderBy('week')
+            ->get()
+            ->map(function ($item) {
+                $startWeek = Carbon::now()->setISODate($item->year, $item->week)->startOfWeek();
+                $endWeek = Carbon::now()->setISODate($item->year, $item->week)->endOfWeek();
+                $item->label = $startWeek->format('d M') . ' - ' . $endWeek->format('d M');
+                return $item;
+            });
+
+        $categoryExpenses = Expense::selectRaw('category, SUM(amount) as total')
+            ->where('group_id', $groupId)
+            ->whereBetween('expense_date', [$startOfMonth, $endOfMonth])
+            ->groupBy('category')
+            ->get();
+
+        return view('user.groups.monthly-analytics', compact('group', 'weeklyExpenses', 'categoryExpenses'));
+    }
+
+
+// for weekly analytics of groups
+     public function analytics($groupId)
+    {
+        $group = Group::with('users')->findOrFail($groupId);
+
+        if (!$group->users->contains(auth()->id())) {
+            abort(403, 'Unauthorized');
+        }
+
+        $weeklyExpenses = Expense::selectRaw('YEAR(expense_date) as year, WEEK(expense_date, 1) as week, SUM(amount) as total')
+            ->where('group_id', $groupId)
+            ->groupBy('year', 'week')
+            ->orderBy('year')
+            ->orderBy('week')
+            ->get()
+            ->map(function ($item) {
+                $startOfWeek = \Carbon\Carbon::now()->setISODate($item->year, $item->week)->startOfWeek();
+                $endOfWeek = \Carbon\Carbon::now()->setISODate($item->year, $item->week)->endOfWeek();
+                if ($endOfWeek->isFuture()) {
+                    $endOfWeek = \Carbon\Carbon::today();
+                }
+                $item->date_range = $startOfWeek->format('d M') . ' - ' . $endOfWeek->format('d M');
+                return $item;
+            });
+
+        $categoryExpenses = Expense::selectRaw('category, SUM(amount) as total')
+            ->where('group_id', $groupId)
+            ->groupBy('category')
+            ->get();
+
+        return view('user.groups.group-analytics', compact('group', 'weeklyExpenses', 'categoryExpenses'));
+    }
 }

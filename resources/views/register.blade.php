@@ -21,10 +21,9 @@
                                 </div>
                             </div>
 
-                            <!-- Display Validation Errors -->
-                          
+                           
 
-                            <form action="{{ route('account.registerUser') }}" method="POST" class="needs-validation" novalidate>
+                            <form action="{{ route('account.registerUser') }}" method="POST" class="needs-validation" novalidate enctype="multipart/form-data">
                                 @csrf
                                 <div class="row gy-3 overflow-hidden">
 
@@ -51,6 +50,55 @@
                                             <label for="phone_number" class="form-label">Phone Number</label>
                                         </div>
                                     </div>
+
+                                    <!-- Country -->
+                                    <div class="col-12">
+                                        <div class="form-floating mb-3">
+                                            <input type="text" class="form-control" name="country" id="country" placeholder="Enter Country" value="{{ old('country') }}">
+                                            <label for="country" class="form-label">Country</label>
+                                        </div>
+                                    </div>
+
+                                    <!-- City -->
+                                    <div class="col-12">
+                                        <div class="form-floating mb-3">
+                                            <input type="text" class="form-control" name="city" id="city" placeholder="Enter City" value="{{ old('city') }}">
+                                            <label for="city" class="form-label">City</label>
+                                        </div>
+                                    </div>
+
+                                    <!-- Financial Goal -->
+                                   <div class="col-12">
+    <div class="form-floating mb-3">
+        <input type="text" class="form-control" name="financial_goal" id="financial_goal" placeholder="Enter Financial Goal" value="{{ old('financial_goal') }}">
+        <label for="financial_goal" class="form-label">Financial Goal</label>
+    </div>
+</div>
+
+                                    <!-- Gender -->
+                                    <div class="col-12">
+                                        <label class="form-label">Gender</label>
+                                        <select class="form-select" name="gender" id="gender">
+                                            <option value="">Select Gender</option>
+                                            <option value="male" {{ old('gender') == 'male' ? 'selected' : '' }}>Male</option>
+                                            <option value="female" {{ old('gender') == 'female' ? 'selected' : '' }}>Female</option>
+                                            <option value="other" {{ old('gender') == 'other' ? 'selected' : '' }}>Other</option>
+                                        </select>
+                                    </div>
+
+                                    <!-- Occupation -->
+                                    <div class="col-12">
+                                        <div class="form-floating mb-3">
+                                            <input type="text" class="form-control" name="occupation" id="occupation" placeholder="Enter Occupation" value="{{ old('occupation') }}">
+                                            <label for="occupation" class="form-label">Occupation</label>
+                                        </div>
+                                    </div>
+
+                                    <!-- Profile Picture
+                                    <div class="col-12">
+                                        <label for="profile_pic" class="form-label">Profile Picture</label>
+                                        <input type="file" class="form-control" name="profile_pic" id="profile_pic" accept="image/*">
+                                    </div> -->
 
                                     <!-- Password -->
                                     <div class="col-12">
@@ -94,6 +142,6 @@
         </div>
     </section>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
 </body>
 </html>

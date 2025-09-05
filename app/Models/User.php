@@ -27,6 +27,8 @@ class User extends Authenticatable implements JWTSubject
         'lent_total',
         'owed_total',
         'phone_number',
+        'personal_budget',
+        'personal_carry_forward_balance'
     ];
 
     /**

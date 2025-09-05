@@ -57,13 +57,30 @@ class AdmobController extends Controller
     }
 
 
-    public function reports()
-{
-    $reports = \DB::table('admob_reports')
-        ->orderBy('date', 'desc')
-        ->get();
+//     public function reports()
+// {
+//     $reports = \DB::table('admob_reports')
+//         ->orderBy('date', 'desc')
+//         ->get();
 
-    return view('admob.reports', compact('reports'));
+//     return view('admob.reports', compact('reports'));
+// }
+
+
+public function reports()
+{
+    $reports = \DB::table('admob_reports')->orderBy('date', 'desc')->get();
+
+    $summary = [
+        'earnings' => $reports->sum('earnings'),
+        'impressions' => $reports->sum('impressions'),
+        'clicks' => $reports->sum('clicks'),
+    ];
+
+    return view('admob.reports', [
+        'summary' => $summary,
+        'dailyReports' => $reports,
+    ]);
 }
 
 }

@@ -17,7 +17,7 @@ class dashboardController extends Controller
     {
         $user = Auth::user();
 
-       
+       $budget=$user->personal_budget;
         $totalUsers = 1;  
         $totalExpenses = Expense::where('user_id', $user->id)->sum('amount');
         $totalGroups = Group::where('created_by', $user->id)->count();
@@ -43,6 +43,7 @@ $expenseTrendData = array_values($monthlyExpenses);
    $categoryLabels = array_keys($categoryData);
     $categoryTotals = array_values($categoryData);
         return view('dashboard', compact(
+            'budget',
             'totalUsers',
             'totalExpenses',
             'totalGroups',

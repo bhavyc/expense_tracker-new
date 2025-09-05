@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>{{ __('messages.analytics') }} - Admin Dashboard</title>
+  <title>{{ __('messages.analytics') }} - User Dashboard</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet"/>
   <style>
@@ -126,16 +126,19 @@
   </style>
 </head>
 <body>
-
 <!-- Sidebar -->
 <div class="sidebar d-none d-md-block">
   <a href="/admin/analytics" class="active"><i class="bi bi-bar-chart"></i> {{ __('messages.analytics') }}</a>  
   <a href="{{ route('account.index') }}"><i class="bi bi-people"></i> {{ __('messages.group_members') }}</a>
   <a href="{{ route('user.expenses.index') }}"><i class="bi bi-wallet2"></i> {{ __('messages.expenses') }}</a>
-  <a href="/admin/groups"><i class="bi bi-collection"></i> {{ __('messages.groups') }}</a>
+  <a href="/account/user/groups"><i class="bi bi-collection"></i> My Groups</a>
   <a href="{{ route('reports.index') }}"><i class="bi bi-file-earmark-text"></i> {{ __('messages.reports') }}</a>
-  <a href="{{ route('feedback.form') }}"><i class="bi bi-people"></i> {{ __('messages.feedback_query') }}</a>
-<!-- <a href="{{ route('feedback.my') }}"><i class="bi bi-people"></i> {{ __('messages.my_feedbacks') }}</a> -->
+  <a href="{{ route('feedback.form') }}"><i class="bi bi-chat-dots"></i> {{ __('messages.feedback_query') }}</a>
+<a href="{{ route('user.chat', 1) }}"><i class="bi bi-chat-dots"></i> Chat with Admin</a>
+
+  <!-- Personal Budget link -->
+  <a href="{{ route('budget.form') }}"><i class="bi bi-cash-coin"></i> {{ __('Add Budget') }}</a>
+
   <!-- Language switch -->
   <form method="GET" action="{{ route('change.language') }}">
     <select name="lang" onchange="this.form.submit()">
@@ -192,8 +195,8 @@
   <div class="row g-4 mb-4">
     <div class="col-sm-6 col-lg-3">
       <div class="card p-4 text-center">
-        <small class="text-muted">{{ __('messages.total_users') }}</small>
-        <h4>{{ $totalUsers }}</h4>
+        <small class="text-muted">{{ __('Personal Budget') }}</small>
+        <h4>{{ $budget }}</h4>
       </div>
     </div>
     <div class="col-sm-6 col-lg-3">

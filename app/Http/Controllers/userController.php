@@ -59,6 +59,26 @@ $groups->each(function ($group) {
     return view('index', ['groups' => $groups]);
 }
 
+
+
+ public function showBudgetForm()
+    {
+        $user = Auth::user();
+        return view('personal_budget', compact('user'));
+    }
+
+    public function updateBudget(Request $request)
+    {
+        $request->validate([
+            'personal_budget' => 'required|numeric|min:0',
+        ]);
+
+        $user = Auth::user();
+        $user->personal_budget = $request->personal_budget;
+        $user->save();
+
+        return redirect()->route('budget.form')->with('success', 'Personal budget updated successfully!');
+    }
     }
  
 
